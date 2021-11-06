@@ -30,6 +30,7 @@ namespace Api
         {
             services.AddTransient<IHumanRepository, MockHumanRepository>();
             services.AddTransient<IBookRepository, MockBookRepository>();
+            services.AddTransient<ILibraryCardRepository, MockLibraryCardRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

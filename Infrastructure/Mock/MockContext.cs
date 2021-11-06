@@ -26,16 +26,22 @@ namespace Infrastructure.Mock
                 new Book { Id = 1, Author = Humens[0], Title = "Анна Каренина", Genre = "Роман" },
                 new Book { Id = 2, Author = Humens[1], Title = "Евгений Онегин", Genre = "Роман" }
             };
+            LibraryCards = new List<LibraryCard>();
         }
 
         /// <summary>
-        /// 1.2.1 - Статичный список людей
+        /// 1.2.3 - Статичный список людей
         /// </summary>
         public static List<Human> Humens { get; set; }
 
         /// <summary>
-        /// 1.2.1 - Статичный список книг
+        /// 1.2.3 - Статичный список книг
         /// </summary>
         public static List<Book> Books { get; set; }
+
+        /// <summary>
+        /// 1.2.1*.3 - cтатичный список, отвечающий за хранение этих сущностей LibraryCard
+        /// </summary>
+        public static List<LibraryCard> LibraryCards { get; set; }
     }
 }
