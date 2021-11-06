@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Dto
 {
     /// <summary>
-    /// 1.2.1 - Класс презентор Book
+    /// 1.2.2 - Класс презентор Book
     /// </summary>
     public class BookDto
     {

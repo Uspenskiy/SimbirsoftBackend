@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Core.Entities
 {
     /// <summary>
-    /// 1.2.1 - Класс книги
+    /// 1.2.2 - Класс книги
     /// </summary>
     public class Book
     {

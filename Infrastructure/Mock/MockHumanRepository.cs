@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Infrastructure.Mock
 {
     /// <summary>
-    /// 1.2.1 - Класс отвечающий за хранение и работу со списком людей (Human)
+    /// Класс отвечающий за хранение и работу со списком людей (Human)
     /// </summary>
     public class MockHumanRepository : IHumanRepository
     {
@@ -20,7 +20,7 @@ namespace Infrastructure.Mock
         }
 
         /// <summary>
-        /// 1.2.1 - Список всех людей
+        /// Список всех людей
         /// </summary>
         /// <param name="searchParams"></param>
         /// <returns></returns>
@@ -33,7 +33,7 @@ namespace Infrastructure.Mock
         }
 
         /// <summary>
-        /// 1.2.1 - Получение конкретного человека по id
+        /// Получение конкретного человека по id
         /// </summary>
         /// <param name="searchParams"></param>
         /// <returns></returns>
@@ -43,18 +43,20 @@ namespace Infrastructure.Mock
         }
 
         /// <summary>
-        /// 1.2.1 - Добавление человека
+        /// Добавление человека
         /// </summary>
         /// <param name="searchParams"></param>
         /// <returns></returns>
         public async Task AddAsync(Human entity)
         {
-            entity.Id = _humans.Count();
+            entity.Id = _humans.Count != 0
+                ? _humans.Last().Id + 1
+                : 0;
             _humans.Add(entity);
         }
 
         /// <summary>
-        /// 1.2.1 - Удаление человека
+        /// Удаление человека
         /// </summary>
         /// <param name="searchParams"></param>
         /// <returns></returns>

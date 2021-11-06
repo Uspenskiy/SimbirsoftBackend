@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Api.Controllers
 {
     /// <summary>
-    /// 1.1 - Контроллер, который отвечает за книгу.
+    /// 1.4 - Контроллер, который отвечает за книгу.
     /// </summary>
     [ApiController]
     [Route("[controller]")]
@@ -31,7 +31,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 1.2.1 - Метод Get возвращающий список всех книг
+        /// 1.4.1.1 - Метод Get возвращающий список всех книг
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -55,7 +55,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 1.2.1 - Список всех книг по автору (фильтрация AuthorId)
+        /// 1.4.1.2 - Список всех книг по автору (фильтрация AuthorId)
         /// </summary>
         /// <param name="AuthorId"></param>
         /// <returns></returns>
@@ -82,7 +82,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 1.2.1 - Метод POST добавляющий новую книгу
+        /// 1.4.2 - Метод POST добавляющий новую книгу
         /// </summary>
         /// <param name="book"></param>
         /// <returns></returns>
@@ -102,7 +102,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 1.2.1 - Метод DELETE удаляющий книгу
+        /// 1.4.3 - Метод DELETE удаляющий книгу
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

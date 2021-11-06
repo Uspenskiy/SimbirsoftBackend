@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Api.Controllers
 {
     /// <summary>
-    /// 1.2.1 - Контроллер, который отвечает за человека.
+    /// 1.3 - Контроллер, который отвечает за человека.
     /// </summary>
     [ApiController]
     [Route("[controller]")]
@@ -31,7 +31,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 1.2.1 - Метод Get возвращающий список всех людей 
+        /// 1.3.1.1 и 1.3.1.3 - Метод Get возвращающий список всех людей 
         /// или в имени, фамилии или отчестве которых содержится поисковая фраза searchParams.
         /// </summary>
         /// <param name="searchParams"></param>
@@ -51,25 +51,27 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 1.2.1 - Список людей, которые пишут книги.
+        /// 1.3.1.2 - Список людей, которые пишут книги.
         /// </summary>
         /// <returns></returns>
         [HttpGet("authors")]
         public async Task<IEnumerable<HumanDto>> GetAuthors()
         {
-            var authors = await _bookRepository.ListAllAsync();
-            return authors.Select(i => new HumanDto
-            {
-                Id = i.Author.Id,
-                Name = i.Author.Name,
-                Surname = i.Author.Surname,
-                Patronymic = i.Author.Patronymic,
-                Birthday = i.Author.Birthday.ToShortDateString()
-            });
+            var books = await _bookRepository.ListAllAsync();
+            return books.Select(i => i.Author)
+                .Distinct()
+                .Select(i => new HumanDto
+                {
+                    Id = i.Id,
+                    Name = i.Name,
+                    Surname = i.Surname,
+                    Patronymic = i.Patronymic,
+                    Birthday = i.Birthday.ToShortDateString()
+                });
         }
 
         /// <summary>
-        /// 1.2.1 - Метод POST добавляющий нового человека.
+        /// 1.3.2 - Метод POST добавляющий нового человека.
         /// </summary>
         /// <param name="human"></param>
         /// <returns></returns>
@@ -87,7 +89,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// Метод DELETE удаляющий человека.
+        /// 1.3.3 Метод DELETE удаляющий человека.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Infrastructure.Mock
 {
     /// <summary>
-    /// 1.2.1 - Класс отвечающий за хранение и работу со списком книг (Book)
+    /// Класс отвечающий за хранение и работу со списком книг (Book)
     /// </summary>
     public class MockBookRepository : IBookRepository
     {
@@ -21,7 +21,7 @@ namespace Infrastructure.Mock
         }
 
         /// <summary>
-        /// 1.2.1 - Список всех книг
+        /// Список всех книг
         /// </summary>
         /// <returns></returns>
         public async Task<IReadOnlyList<Book>> ListAllAsync()
@@ -30,7 +30,7 @@ namespace Infrastructure.Mock
         }
 
         /// <summary>
-        /// 1.2.1 - Получение конкретной книги по id
+        /// Получение конкретной книги по id
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -40,18 +40,20 @@ namespace Infrastructure.Mock
         }
 
         /// <summary>
-        /// 1.2.1 - Добавление книги
+        /// Добавление книги
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
         public async Task AddAsync(Book entity)
         {
-            entity.Id = _books.Count();
+            entity.Id = _books.Count != 0 
+                ? _books.Last().Id + 1
+                : 0;
             _books.Add(entity);
         }
 
         /// <summary>
-        /// 1.2.1 - Удаление книги
+        /// Удаление книги
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
