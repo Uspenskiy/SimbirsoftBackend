@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,11 @@ namespace Dto
     public class BookDto
     {
         public int Id { get; set; }
+        [Required(ErrorMessage = "Укажите название книги")]
         public string Title { get; set; }
+        [Required(ErrorMessage = "Укажите жанр книги")]
         public string Genre { get; set; }
+        [Required(ErrorMessage = "Укажите автора книги")]
         public HumanDto Author { get; set; }
     }
 }

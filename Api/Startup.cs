@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Middlewares;
 using Core.Interfaces;
 using Infrastructure.Mock;
 using Microsoft.AspNetCore.Builder;
@@ -48,9 +49,13 @@ namespace Api
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Api v1"));
             }
 
+            app.UseMiddleware<TimeRequestMiddleware>();
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseMiddleware<BasicAuthorizationMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

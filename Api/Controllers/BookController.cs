@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Core;
+using Core.Entities;
 using Core.Interfaces;
 using Dto;
 using Microsoft.AspNetCore.Mvc;
@@ -32,12 +33,27 @@ namespace Api.Controllers
 
         /// <summary>
         /// 1.4.1.1 - Метод Get возвращающий список всех книг
+        /// 1.2.2**.2 - возможность сделать запрос с сортировкой по автору, имени книги и жанру
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<BookDto>> GetBooks()
+        public async Task<IEnumerable<BookDto>> GetBooks([FromQuery] BookSpecParams bookSpecParams)
         {
             var books = await _bookRepository.ListAllAsync();
+            if(bookSpecParams != null)
+            {
+                if (bookSpecParams.SortByAuthor)
+                    books = books.OrderBy(s => s.Author.Surname)
+                        .ThenBy(s => s.Author.Name)
+                        .ThenBy(s => s.Author.Patronymic)
+                        .ToList();
+                if (bookSpecParams.SortByTitle)
+                    books = books.OrderBy(s => s.Title)
+                        .ToList();
+                if (bookSpecParams.SortByGenre)
+                    books = books.OrderBy(s => s.Genre)
+                        .ToList();
+            }
             return books.Select(i => new BookDto
             {
                 Id = i.Id,
