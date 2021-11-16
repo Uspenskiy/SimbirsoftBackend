@@ -11,7 +11,7 @@ namespace Infrastructure.Mock
     /// <summary>
     /// Класс отвечающий за хранение и работу со списком карточек (LibraryCard)
     /// </summary>
-    public class MockLibraryCardRepository : ILibraryCardRepository
+    public class MockLibraryCardRepository : IGenericRepository<LibraryCard>
     {
         private List<LibraryCard> _cards;
 
@@ -30,6 +30,11 @@ namespace Infrastructure.Mock
             return _cards.FirstOrDefault(i => i.Id == id);
         }
 
+        public async Task<LibraryCard> GetEntityWithSpec(ISpecification<LibraryCard> spec)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Список всех карточек
         /// </summary>
@@ -39,17 +44,23 @@ namespace Infrastructure.Mock
             return _cards;
         }
 
+        public async Task<IReadOnlyList<LibraryCard>> ListAsync(ISpecification<LibraryCard> spec)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Добавление каточки
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task AddAsync(LibraryCard entity)
+        public async Task<LibraryCard> AddAsync(LibraryCard entity)
         {
             entity.Id = _cards.Count != 0
                 ? _cards.Last().Id + 1
                 : 0;
             _cards.Add(entity);
+            return entity;
         }
 
         /// <summary>
