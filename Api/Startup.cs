@@ -58,7 +58,7 @@ namespace Api
 
             app.UseRouting();
 
-            app.UseMiddleware<BasicAuthorizationMiddleware>();
+            //app.UseMiddleware<BasicAuthorizationMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

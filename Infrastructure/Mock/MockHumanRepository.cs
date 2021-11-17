@@ -29,9 +29,19 @@ namespace Infrastructure.Mock
             return _humans.FirstOrDefault(s => s.Id == id);
         }
 
-        public Task<Human> GetEntityWithSpec(ISpecification<Human> spec)
+        public async Task<Human> GetEntityWithSpec(ISpecification<Human> spec)
         {
-            throw new NotImplementedException();
+            return SpecificationEvaluator<Human>.Apply(_humans, spec)
+                .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IReadOnlyList<Human>> ListAllAsync()
+        {
+            return _humans;
         }
 
         /// <summary>
@@ -39,32 +49,10 @@ namespace Infrastructure.Mock
         /// </summary>
         /// <param name="spec"></param>
         /// <returns></returns>
-        public async Task<Human> GetEntityWithSpec(ISpecification<Book> spec)
+        public async Task<IReadOnlyList<Human>> ListAsync(ISpecification<Human> spec)
         {
-            throw new NotImplementedException();
-        }
-
-        ///// <summary>
-        ///// Список всех людей
-        ///// </summary>
-        ///// <param name="searchParams"></param>
-        ///// <returns></returns>
-        //public async Task<IReadOnlyList<Human>> ListAsync(string searchParams)
-        //{
-        //    return _humans.Where(s => s.Name.Contains(searchParams) ||
-        //                        s.Surname.Contains(searchParams) ||
-        //                        s.Patronymic.Contains(searchParams))
-        //                   .ToList();
-        //}
-
-        public Task<IReadOnlyList<Human>> ListAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyList<Human>> ListAsync(ISpecification<Human> spec)
-        {
-            throw new NotImplementedException();
+            return SpecificationEvaluator<Human>.Apply(_humans, spec)
+                .ToList();
         }
 
 

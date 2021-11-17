@@ -30,9 +30,15 @@ namespace Infrastructure.Mock
             return _cards.FirstOrDefault(i => i.Id == id);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="spec"></param>
+        /// <returns></returns>
         public async Task<LibraryCard> GetEntityWithSpec(ISpecification<LibraryCard> spec)
         {
-            throw new NotImplementedException();
+            return SpecificationEvaluator<LibraryCard>.Apply(_cards, spec)
+                .FirstOrDefault();
         }
 
         /// <summary>
@@ -44,9 +50,15 @@ namespace Infrastructure.Mock
             return _cards;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="spec"></param>
+        /// <returns></returns>
         public async Task<IReadOnlyList<LibraryCard>> ListAsync(ISpecification<LibraryCard> spec)
         {
-            throw new NotImplementedException();
+            return SpecificationEvaluator<LibraryCard>.Apply(_cards, spec)
+                 .ToList();
         }
 
         /// <summary>

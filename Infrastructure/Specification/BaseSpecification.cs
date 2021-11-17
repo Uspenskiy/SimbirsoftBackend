@@ -14,19 +14,21 @@ namespace Infrastructure.Specification
         {
 
         }
-
-        public BaseSpecification(Expression<Func<T, bool>> criteria)
+        
+        public BaseSpecification(Func<T, bool> criteria)
         {
             Criteria = criteria;
         }
 
-        public Expression<Func<T, bool>> Criteria { get; private set; }
+        public Func<T, bool> Criteria { get; private set; }
 
-        public Expression<Func<T, object>> OrderBy { get; private set; }
+        public List<Func<T, object>> OrderBy { get; private set; }
 
-        protected void AddOrderBy(Expression<Func<T, object>> orderByExpression)
+        protected void AddOrderBy(Func<T, object> orderBy)
         {
-            OrderBy = orderByExpression;
+            if (OrderBy == null)
+                OrderBy = new List<Func<T, object>>();
+            OrderBy.Add(orderBy);
         }
     }
 }

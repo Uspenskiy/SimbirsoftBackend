@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Infrastructure;
 
 namespace Infrastructure.Mock
 {
@@ -37,7 +38,8 @@ namespace Infrastructure.Mock
         /// <returns></returns>
         public async Task<Book> GetEntityWithSpec(ISpecification<Book> spec)
         {
-            throw new NotImplementedException();
+            return SpecificationEvaluator<Book>.Apply(_books, spec)
+                .FirstOrDefault();
         }
 
         /// <summary>
@@ -56,7 +58,8 @@ namespace Infrastructure.Mock
         /// <returns></returns>
         public async Task<IReadOnlyList<Book>> ListAsync(ISpecification<Book> spec)
         {
-            throw new NotImplementedException();
+            return SpecificationEvaluator<Book>.Apply(_books, spec)
+                .ToList();
         }
 
         /// <summary>

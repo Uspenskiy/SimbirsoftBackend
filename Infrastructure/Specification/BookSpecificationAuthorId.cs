@@ -9,8 +9,8 @@ namespace Infrastructure.Specification
 {
     public class BookSpecificationAuthorId : BaseSpecification<Book>
     {
-        public BookSpecificationAuthorId(int authorId)
-        {
-        }
+        public BookSpecificationAuthorId(int authorId) : base
+            (x => x.Author.Id == authorId)
+        {}
     }
 }
