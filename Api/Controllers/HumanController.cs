@@ -1,6 +1,8 @@
-﻿using Core.Entities;
+﻿using AutoMapper;
+using Core.Entities;
 using Core.Interfaces;
 using Dto;
+using Infrastructure.Specification;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,14 +20,17 @@ namespace Api.Controllers
     public class HumanController : ControllerBase
     {
         private readonly ILogger<HumanController> _logger;
-        private readonly IHumanRepository _humanRepository;
-        private readonly IBookRepository _bookRepository;
+        private readonly IMapper _mapper;
+        private readonly IGenericRepository<Human> _humanRepository;
+        private readonly IGenericRepository<Book> _bookRepository;
 
-        public HumanController(ILogger<HumanController> logger, 
-            IHumanRepository humanRepository, 
-            IBookRepository bookRepository)
+        public HumanController(ILogger<HumanController> logger,
+            IMapper mapper, 
+            IGenericRepository<Human> humanRepository,
+            IGenericRepository<Book> bookRepository)
         {
             _logger = logger;
+            _mapper = mapper;
             _humanRepository = humanRepository;
             _bookRepository = bookRepository;
         }
@@ -39,15 +44,9 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<HumanDto>> GetHumans([FromQuery] string searchParams)
         {
-            var result = await _humanRepository.ListAsync(searchParams != null ? searchParams : "");
-            return result.Select(i => new HumanDto
-            {
-                Id = i.Id,
-                Name = i.Name,
-                Surname = i.Surname,
-                Patronymic = i.Patronymic,
-                Birthday = i.Birthday.ToShortDateString()
-            });
+            var spec = new HumanSpecificationNameSearch(searchParams);
+            var humans = await _humanRepository.ListAsync(spec);
+            return _mapper.Map<IEnumerable<Human>, IEnumerable<HumanDto>>(humans);
         }
 
         /// <summary>
@@ -57,35 +56,22 @@ namespace Api.Controllers
         [HttpGet("authors")]
         public async Task<IEnumerable<HumanDto>> GetAuthors()
         {
-            var books = await _bookRepository.ListAllAsync();
-            return books.Select(i => i.Author)
-                .Distinct()
-                .Select(i => new HumanDto
-                {
-                    Id = i.Id,
-                    Name = i.Name,
-                    Surname = i.Surname,
-                    Patronymic = i.Patronymic,
-                    Birthday = i.Birthday.ToShortDateString()
-                });
+            var spec = new HumanSpecificationAuthors();
+            var humans = await _humanRepository.ListAsync(spec);
+            return _mapper.Map<IEnumerable<Human>, IEnumerable<HumanDto>>(humans);
         }
 
         /// <summary>
         /// 1.3.2 - Метод POST добавляющий нового человека.
         /// </summary>
-        /// <param name="human"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<HumanDto> CreateHuman(HumanDto human)
+        public async Task<HumanDto> CreateHuman(HumanDto dto)
         {
-            await _humanRepository.AddAsync(new Human
-            {
-                Name = human.Name,
-                Surname = human.Surname,
-                Patronymic = human.Patronymic,
-                Birthday = DateTime.Parse(human.Birthday)
-            });
-            return human;
+            var human = _mapper.Map<HumanDto, Human>(dto);
+            var result = await _humanRepository.AddAsync(human);
+            return _mapper.Map<Human, HumanDto>(result);
         }
 
         /// <summary>

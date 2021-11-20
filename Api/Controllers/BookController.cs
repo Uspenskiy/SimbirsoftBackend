@@ -1,7 +1,9 @@
-﻿using Core;
+﻿using AutoMapper;
+using Core;
 using Core.Entities;
 using Core.Interfaces;
 using Dto;
+using Infrastructure.Specification;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -19,14 +21,17 @@ namespace Api.Controllers
     public class BookController : ControllerBase
     {
         private readonly ILogger<BookController> _logger;
-        private readonly IHumanRepository _humanRepository;
-        private readonly IBookRepository _bookRepository;
+        private readonly IMapper _mapper;
+        private readonly IGenericRepository<Human> _humanRepository;
+        private readonly IGenericRepository<Book> _bookRepository;
 
         public BookController(ILogger<BookController> logger,
-            IHumanRepository humanRepository,
-            IBookRepository bookRepository)
+            IMapper mapper,
+            IGenericRepository<Human> humanRepository,
+            IGenericRepository<Book> bookRepository)
         {
             _logger = logger;
+            _mapper = mapper;
             _humanRepository = humanRepository;
             _bookRepository = bookRepository;
         }
@@ -39,35 +44,9 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<BookDto>> GetBooks([FromQuery] BookSpecParams bookSpecParams)
         {
-            var books = await _bookRepository.ListAllAsync();
-            if(bookSpecParams != null)
-            {
-                if (bookSpecParams.SortByAuthor)
-                    books = books.OrderBy(s => s.Author.Surname)
-                        .ThenBy(s => s.Author.Name)
-                        .ThenBy(s => s.Author.Patronymic)
-                        .ToList();
-                if (bookSpecParams.SortByTitle)
-                    books = books.OrderBy(s => s.Title)
-                        .ToList();
-                if (bookSpecParams.SortByGenre)
-                    books = books.OrderBy(s => s.Genre)
-                        .ToList();
-            }
-            return books.Select(i => new BookDto
-            {
-                Id = i.Id,
-                Title = i.Title,
-                Genre = i.Genre,
-                Author = new HumanDto
-                {
-                    Id = i.Author.Id,
-                    Name = i.Author.Name,
-                    Surname = i.Author.Surname,
-                    Patronymic = i.Author.Patronymic,
-                    Birthday = i.Author.Birthday.ToShortDateString()
-                }
-            });
+            var spec = new BookSpecificationAuthorTitleGenre(bookSpecParams);
+            var books = await _bookRepository.ListAsync(spec);
+            return _mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(books);
         }
 
         /// <summary>
@@ -78,43 +57,24 @@ namespace Api.Controllers
         [HttpGet("{AuthorId}")]
         public async Task<ActionResult<IEnumerable<BookDto>>> GetBooksByAuthorId(int AuthorId)
         {
-            var books = await _bookRepository.ListAllAsync();
-            return Ok(books
-                .Where(w => w.Author.Id == AuthorId)
-                .Select(i => new BookDto
-                {
-                    Id = i.Id,
-                    Title = i.Title,
-                    Genre = i.Genre,
-                    Author = new HumanDto
-                    {
-                        Id = i.Author.Id,
-                        Name = i.Author.Name,
-                        Surname = i.Author.Surname,
-                        Patronymic = i.Author.Patronymic,
-                        Birthday = i.Author.Birthday.ToShortDateString()
-                    }
-                }));
+            var spec = new BookSpecificationAuthorId(AuthorId);
+            var books = await _bookRepository.ListAsync(spec);
+            return Ok(_mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(books));
         }
 
         /// <summary>
         /// 1.4.2 - Метод POST добавляющий новую книгу
         /// </summary>
-        /// <param name="book"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<BookDto>> CreateBook(BookDto book)
+        public async Task<ActionResult<BookDto>> CreateBook(BookDto dto)
         {
-            var author = await _humanRepository.GetByIdAsync(book.Author.Id);
-            if (author == null)
-                return BadRequest();
-            await _bookRepository.AddAsync(new Book 
-            {
-                Title = book.Title,
-                Genre = book.Genre,
-                Author = author
-            }); 
-            return Ok(book);
+            var author = await _humanRepository.GetByIdAsync(dto.Author.Id);
+            if (author == null) return BadRequest();
+            var book = _mapper.Map<BookDto, Book>(dto);
+            var result = await _bookRepository.AddAsync(book);
+            return Ok(_mapper.Map<Book, BookDto>(result));
         }
 
         /// <summary>
@@ -126,8 +86,7 @@ namespace Api.Controllers
         public async Task<ActionResult> DeleteBook(int id)
         {
             var book = await _bookRepository.GetByIdAsync(id);
-            if (book == null)
-                return BadRequest();
+            if (book == null) return BadRequest();
             await _bookRepository.DeleteAsync(book);
             return Ok();
         }

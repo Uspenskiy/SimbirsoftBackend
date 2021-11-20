@@ -20,6 +20,6 @@ namespace Dto
         [Required(ErrorMessage = "Укажите отчество человека")]
         public string Patronymic { get; set; }
         [Required(ErrorMessage = "Укажите дату рождения человека")]
-        public string Birthday { get; set; }
+        public DateTimeOffset Birthday { get; set; }
     }
 }

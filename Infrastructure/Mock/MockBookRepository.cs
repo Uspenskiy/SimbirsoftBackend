@@ -5,28 +5,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Infrastructure;
 
 namespace Infrastructure.Mock
 {
     /// <summary>
     /// Класс отвечающий за хранение и работу со списком книг (Book)
     /// </summary>
-    public class MockBookRepository : IBookRepository
+    public class MockBookRepository : IGenericRepository<Book>
     {
         private List<Book> _books;
 
         public MockBookRepository()
         {
             _books = MockContext.Books;
-        }
-
-        /// <summary>
-        /// Список всех книг
-        /// </summary>
-        /// <returns></returns>
-        public async Task<IReadOnlyList<Book>> ListAllAsync()
-        {
-            return _books;
         }
 
         /// <summary>
@@ -40,16 +32,48 @@ namespace Infrastructure.Mock
         }
 
         /// <summary>
+        /// Книга отвечающая условию
+        /// </summary>
+        /// <param name="spec"></param>
+        /// <returns></returns>
+        public async Task<Book> GetEntityWithSpec(ISpecification<Book> spec)
+        {
+            return SpecificationEvaluator<Book>.Apply(_books, spec)
+                .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Список всех книг
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IReadOnlyList<Book>> ListAllAsync()
+        {
+            return _books;
+        }
+
+        /// <summary>
+        /// Список всех книг отвечающих условию
+        /// </summary>
+        /// <param name="spec"></param>
+        /// <returns></returns>
+        public async Task<IReadOnlyList<Book>> ListAsync(ISpecification<Book> spec)
+        {
+            return SpecificationEvaluator<Book>.Apply(_books, spec)
+                .ToList();
+        }
+
+        /// <summary>
         /// Добавление книги
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public async Task AddAsync(Book entity)
+        public async Task<Book> AddAsync(Book entity)
         {
-            entity.Id = _books.Count != 0 
+            entity.Id = _books.Count != 0
                 ? _books.Last().Id + 1
-                : 0;
+                : 1;
             _books.Add(entity);
+            return entity;
         }
 
         /// <summary>

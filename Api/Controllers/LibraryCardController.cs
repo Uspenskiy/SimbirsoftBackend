@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using AutoMapper;
+using Core.Entities;
 using Core.Interfaces;
 using Dto;
 using Microsoft.AspNetCore.Mvc;
@@ -18,79 +19,50 @@ namespace Api.Controllers
     public class LibraryCardController : ControllerBase
     {
         private readonly ILogger<LibraryCardController> _logger;
-        private readonly ILibraryCardRepository _cardRepository;
-        private readonly IHumanRepository _humanRepository;
-        private readonly IBookRepository _bookRepository;
+        private readonly IMapper _mapper;
+        private readonly IGenericRepository<LibraryCard> _cardRepository;
+        private readonly IGenericRepository<Human> _humanRepository;
+        private readonly IGenericRepository<Book> _bookRepository;
 
         public LibraryCardController(ILogger<LibraryCardController> logger,
-            ILibraryCardRepository cardRepository,
-            IHumanRepository humanRepository,
-            IBookRepository bookRepository)
+            IMapper mapper,
+            IGenericRepository<LibraryCard> cardRepository,
+            IGenericRepository<Human> humanRepository,
+            IGenericRepository<Book> bookRepository)
         {
             _logger = logger;
+            _mapper = mapper;
             _cardRepository = cardRepository;
             _humanRepository = humanRepository;
             _bookRepository = bookRepository;
         }
 
         /// <summary>
-        /// Метод Get возвращающий список всех карточку
+        /// Метод Get возвращающий список всех карточек
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<LibraryCardDto>> GetBooks()
+        public async Task<IEnumerable<LibraryCardDto>> GetCards()
         {
             var cards = await _cardRepository.ListAllAsync();
-            return cards.Select(i => new LibraryCardDto
-            {
-                Id = i.Id,
-                Person = new HumanDto
-                {
-                    Id = i.Person.Id,
-                    Name = i.Person.Name,
-                    Surname = i.Person.Surname,
-                    Patronymic = i.Person.Patronymic,
-                    Birthday = i.Person.Birthday.ToShortDateString()
-                },
-                Book = new BookDto 
-                {
-                    Id = i.Book.Id,
-                    Title = i.Book.Title,
-                    Genre = i.Book.Genre,
-                    Author = new HumanDto
-                    {
-                        Id = i.Book.Author.Id,
-                        Name = i.Book.Author.Name,
-                        Surname = i.Book.Author.Surname,
-                        Patronymic = i.Book.Author.Patronymic,
-                        Birthday = i.Book.Author.Birthday.ToShortDateString()
-                    }
-                },
-                DateTimeOffset = i.DateTimeOffset.ToString("yyyy - MM - ddTHH:mm: ss.fffzzz")
-            });
+            return _mapper.Map<IEnumerable<LibraryCard>, IEnumerable<LibraryCardDto>>(cards);
         }
 
         /// <summary>
         /// 1.2.1*.4 - Метод POST добавляющий новую карточку
         /// </summary>
-        /// <param name="card"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<LibraryCardDto>> CreateCard(LibraryCardDto card)
+        public async Task<ActionResult<LibraryCardDto>> CreateCard(LibraryCardDto dto)
         {
-            var person = await _humanRepository.GetByIdAsync(card.Person.Id);
-            if(person == null)
-                return BadRequest();
-            var book = await _bookRepository.GetByIdAsync(card.Book.Id);
-            if (book == null)
-                return BadRequest();
-            await _cardRepository.AddAsync(new LibraryCard 
-            {
-                Person = person,
-                Book = book,
-                DateTimeOffset = DateTime.Now
-            });
-            return card;
+            var person = await _humanRepository.GetByIdAsync(dto.Person.Id);
+            if(person == null) return BadRequest();
+            var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
+            if (book == null) return BadRequest();
+            var card = _mapper.Map<LibraryCardDto, LibraryCard>(dto);
+            var result = await _cardRepository.AddAsync(card);
+            return Ok(_mapper.Map<LibraryCard, LibraryCardDto>(result));
         }
 
         /// <summary>
@@ -102,8 +74,7 @@ namespace Api.Controllers
         public async Task<ActionResult> DeleteCard(int id)
         {
             var card = await _cardRepository.GetByIdAsync(id);
-            if (card == null)
-                return BadRequest();
+            if (card == null) return BadRequest();
             await _cardRepository.DeleteAsync(card);
             return Ok();
         }

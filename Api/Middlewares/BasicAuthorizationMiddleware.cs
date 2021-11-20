@@ -26,6 +26,7 @@ namespace Api.Middlewares
             if (context.Request.Headers["Authorization"] != "Basic admin:admin")
             {
                 context.Response.StatusCode = 401;
+                await context.Response.WriteAsync("Unauthorized error");
                 return;
             }
             await _next(context);

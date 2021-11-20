@@ -14,6 +14,6 @@ namespace Core.Entities
         public int Id { get; set; }
         public Human Person { get; set; }
         public Book Book { get; set; }
-        public DateTime DateTimeOffset { get; set; }
+        public DateTimeOffset DateTimeCreate { get; set; }
     }
 }

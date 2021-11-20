@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Api.Helpers;
 using Api.Middlewares;
+using Core.Entities;
 using Core.Interfaces;
 using Infrastructure.Mock;
 using Microsoft.AspNetCore.Builder;
@@ -29,9 +31,10 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IHumanRepository, MockHumanRepository>();
-            services.AddTransient<IBookRepository, MockBookRepository>();
-            services.AddTransient<ILibraryCardRepository, MockLibraryCardRepository>();
+            services.AddTransient<IGenericRepository<Human>, MockHumanRepository>();
+            services.AddTransient<IGenericRepository<Book>, MockBookRepository>();
+            services.AddTransient<IGenericRepository<LibraryCard>, MockLibraryCardRepository>();
+            services.AddAutoMapper(typeof(MappingProfiles));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -55,7 +58,7 @@ namespace Api
 
             app.UseRouting();
 
-            app.UseMiddleware<BasicAuthorizationMiddleware>();
+            //app.UseMiddleware<BasicAuthorizationMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
