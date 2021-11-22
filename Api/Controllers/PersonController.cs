@@ -26,19 +26,16 @@ namespace Api.Controllers
         private readonly IMapper _mapper;
         private readonly IGenericRepository<Person> _personRepository;
         private readonly IGenericRepository<Book> _bookRepository;
-        private readonly ILibraryCardService _cardService;
 
         public PersonController(ILogger<PersonController> logger,
             IMapper mapper, 
             IGenericRepository<Person> personRepository,
-            IGenericRepository<Book> bookRepository,
-            ILibraryCardService cardService)
+            IGenericRepository<Book> bookRepository)
         {
             _logger = logger;
             _mapper = mapper;
             _personRepository = personRepository;
             _bookRepository = bookRepository;
-            _cardService = cardService;
         }
 
         /// <summary>
@@ -61,13 +58,13 @@ namespace Api.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("TakenBooks/{id}")]
-        public async Task<IEnumerable<BookDto>> GetTakenBook(int id)
-        {
-            var spec = new PersonSpecificationTakenBook(id);
-            var person = await _personRepository.GetEntityWithSpec(spec);
-            return _mapper.Map<IEnumerable<LibraryCard>, IEnumerable<BookDto>>(person.LibraryCards);
-        }
+        //[HttpGet("TakenBooks/{id}")]
+        //public async Task<IEnumerable<BookDto>> GetTakenBook(int id)
+        //{
+        //    var spec = new PersonSpecificationTakenBook(id);
+        //    var person = await _personRepository.GetEntityWithSpec(spec);
+        //    return _mapper.Map<IEnumerable<LibraryCard>, IEnumerable<BookDto>>(person.LibraryCards);
+        //}
 
         /// <summary>
         /// 1.3.1.2 - Список людей, которые пишут книги.
@@ -102,17 +99,18 @@ namespace Api.Controllers
         /// <param name="id"></param>
         /// <param name="book"></param>
         /// <returns></returns>
-        [HttpPost("TakeBook")]
-        public async Task<ActionResult<PersonDto>> TakeBook([FromBody] LibraryCardDto dto)
-        {
-            var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
-            var person = await _personRepository.GetByIdAsync(dto.Person.Id);
-            var result = await _cardService.TakeBook(book, person);
-            if (!result) return BadRequest(Error.GetJsonError("Пользователю не удалось взять книгу"));
-            var spec = new PersonSpecificationTakenBook(dto.Person.Id);
-            var personWithBook = await _personRepository.GetEntityWithSpec(spec);
-            return Ok(_mapper.Map<Person, PersonDto>(personWithBook));
-        }
+        //[HttpPost("TakeBook")]
+        //public async Task<ActionResult<PersonDto>> TakeBook([FromBody] LibraryCardDto dto)
+        //{
+        //    //var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
+        //    //var person = await _personRepository.GetByIdAsync(dto.Person.Id);
+        //    //var result = await _cardService.TakeBook(book, person);
+        //    //if (!result) return BadRequest(Error.GetJsonError("Пользователю не удалось взять книгу"));
+        //    //var spec = new PersonSpecificationTakenBook(dto.Person.Id);
+        //    //var personWithBook = await _personRepository.GetEntityWithSpec(spec);
+        //    //return Ok(_mapper.Map<Person, PersonDto>(personWithBook));
+        //    return Ok();
+        //}
 
         /// <summary>
         /// 2.7.1.7.	Пользователь может вернуть книгу (удалить из списка книг пользователя книгу) пользователь + книги
@@ -120,17 +118,18 @@ namespace Api.Controllers
         /// <param name="id"></param>
         /// <param name="book"></param>
         /// <returns></returns>
-        [HttpPost("TakeBook")]
-        public async Task<ActionResult> ReturnBook([FromBody] LibraryCardDto dto)
-        {
-            var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
-            var person = await _personRepository.GetByIdAsync(dto.Person.Id);
-            var result = await _cardService.ReturnBook(book, person);
-            if (!result) return BadRequest(Error.GetJsonError("Пользователю не удалось вернуть книгу"));
-            var spec = new PersonSpecificationTakenBook(dto.Person.Id);
-            var personWithBook = await _personRepository.GetEntityWithSpec(spec);
-            return Ok(_mapper.Map<Person, PersonDto>(personWithBook));
-        }
+        //[HttpPost("TakeBook")]
+        //public async Task<ActionResult> ReturnBook([FromBody] LibraryCardDto dto)
+        //{
+        //    //var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
+        //    //var person = await _personRepository.GetByIdAsync(dto.Person.Id);
+        //    //var result = await _cardService.ReturnBook(book, person);
+        //    //if (!result) return BadRequest(Error.GetJsonError("Пользователю не удалось вернуть книгу"));
+        //    //var spec = new PersonSpecificationTakenBook(dto.Person.Id);
+        //    //var personWithBook = await _personRepository.GetEntityWithSpec(spec);
+        //    //return Ok(_mapper.Map<Person, PersonDto>(personWithBook));
+        //    return Ok();
+        //}
 
         /// <summary>
         /// 2.7.1.2. - Информация о пользователе может быть изменена (PUT) (вернуть пользователя)

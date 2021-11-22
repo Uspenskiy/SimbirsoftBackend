@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,10 +12,29 @@ namespace Core.QueryParams
     /// </summary>
     public class BookSpecParams
     {
+        /// <summary>
+        /// Сортировка по автору
+        /// </summary>
         public bool SortByAuthor { get; set; }
 
+        /// <summary>
+        /// Сортировка по названию
+        /// </summary>
         public bool SortByTitle { get; set; }
 
+        /// <summary>
+        /// Сортировка по жанру
+        /// </summary>
         public bool SortByGenre { get; set; }
+
+        /// <summary>
+        /// Автор книги
+        /// </summary>
+        public AuthorDto Author { get; set; }
+
+        /// <summary>
+        /// Жанр книги
+        /// </summary>
+        public GenreDto Genre { get; set; }
     }
 }

@@ -31,11 +31,13 @@ CREATE TABLE book
 CREATE TABLE book_genre
 (
 	book_id INTEGER REFERENCES book (Id),
-	genre_id INTEGER REFERENCES genre (Id)
+	genre_id INTEGER REFERENCES genre (Id),
+	CONSTRAINT book_genre_pkey PRIMARY KEY (book_id, genre_id) 
 );
 
 CREATE TABLE library_card
 (
 	book_id INTEGER REFERENCES book (Id),
-	person_id INTEGER REFERENCES person (Id)
+	person_id INTEGER REFERENCES person (Id),
+	CONSTRAINT library_card_pkey PRIMARY KEY (book_id, person_id) 
 );

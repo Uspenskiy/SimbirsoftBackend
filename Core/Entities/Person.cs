@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace Core.Entities
 {
     public partial class Person : BaseEntity
@@ -11,6 +9,7 @@ namespace Core.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string MiddleName { get; set; }
+        public IReadOnlyList<Book> Books { get; set; }
         public IReadOnlyList<LibraryCard> LibraryCards { get; set; }
     }
 }

@@ -9,6 +9,10 @@ namespace Infrastructure.Data
 {
     public partial class AppDbContext : DbContext
     {
+        public AppDbContext()
+        {
+        }
+
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
@@ -16,14 +20,12 @@ namespace Infrastructure.Data
 
         public virtual DbSet<Author> Authors { get; set; }
         public virtual DbSet<Book> Books { get; set; }
-        public virtual DbSet<BookGenre> BookGenres { get; set; }
         public virtual DbSet<Genre> Genres { get; set; }
-        public virtual DbSet<LibraryCard> LibraryCards { get; set; }
         public virtual DbSet<Person> People { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.HasAnnotation("Relational:Collation", "Russian_Russia.1251");
+            modelBuilder.HasAnnotation("Relational:Collation", "Russian_Russia.1251");
 
             modelBuilder.Entity<Author>(entity =>
             {
@@ -61,12 +63,22 @@ namespace Infrastructure.Data
 
                 entity.HasOne(d => d.Author)
                     .WithMany(p => p.Books)
-                    .HasForeignKey(d => d.AuthorId);
+                    .HasForeignKey(d => d.AuthorId)
+                    .HasConstraintName("book_author_id_fkey");
+
+                entity.HasMany(h => h.Genres)
+                      .WithMany(w => w.Books)
+                      .UsingEntity(t => t.ToTable("BookGenre"));
+
+                entity.HasMany(h => h.People)
+                      .WithMany(w => w.Books)
+                      .UsingEntity(t => t.ToTable("LibraryCard"));
             });
 
             modelBuilder.Entity<BookGenre>(entity =>
             {
-                entity.HasKey(k => new { k.BookId, k.GenreId });
+                entity.HasKey(e => new { e.BookId, e.GenreId })
+                    .HasName("book_genre_pkey");
 
                 entity.ToTable("book_genre");
 
@@ -75,23 +87,17 @@ namespace Infrastructure.Data
                 entity.Property(e => e.GenreId).HasColumnName("genre_id");
 
                 entity.HasOne(d => d.Book)
-                    .WithMany(w => w.BookGenres)
-                    .HasForeignKey(d => d.BookId);
+                    .WithMany(p => p.BookGenres)
+                    .HasForeignKey(d => d.BookId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("book_genre_book_id_fkey");
 
                 entity.HasOne(d => d.Genre)
-                    .WithMany(w => w.BookGenres)
-                    .HasForeignKey(d => d.GenreId);
+                    .WithMany(p => p.BookGenres)
+                    .HasForeignKey(d => d.GenreId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("book_genre_genre_id_fkey");
             });
-
-            //modelBuilder.Entity<BookGenre>()
-            //    .HasOne(h => h.Book)
-            //    .WithMany(w => w.BookGenres)
-            //    .HasForeignKey(k => k.BookId);
-
-            //modelBuilder.Entity<BookGenre>()
-            //    .HasOne(h => h.Genre)
-            //    .WithMany(w => w.BookGenres)
-            //    .HasForeignKey(k => k.GenreId);
 
             modelBuilder.Entity<Genre>(entity =>
             {
@@ -103,11 +109,16 @@ namespace Infrastructure.Data
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("genre_name");
+
+                entity.HasMany(h => h.Books)
+                      .WithMany(w => w.Genres)
+                      .UsingEntity(t => t.ToTable("BookGenre"));
             });
 
             modelBuilder.Entity<LibraryCard>(entity =>
             {
-                entity.HasKey(k => new { k.BookId, k.PersonId });
+                entity.HasKey(e => new { e.BookId, e.PersonId })
+                    .HasName("library_card_pkey");
 
                 entity.ToTable("library_card");
 
@@ -116,23 +127,17 @@ namespace Infrastructure.Data
                 entity.Property(e => e.PersonId).HasColumnName("person_id");
 
                 entity.HasOne(d => d.Book)
-                    .WithMany(w => w.LibraryCards)
-                    .HasForeignKey(d => d.BookId);
+                    .WithMany(p => p.LibraryCards)
+                    .HasForeignKey(d => d.BookId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("library_card_book_id_fkey");
 
                 entity.HasOne(d => d.Person)
-                    .WithMany(w => w.LibraryCards)
-                    .HasForeignKey(d => d.PersonId);
+                    .WithMany(p => p.LibraryCards)
+                    .HasForeignKey(d => d.PersonId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("library_card_person_id_fkey");
             });
-
-            //modelBuilder.Entity<LibraryCard>()
-            //    .HasOne(h => h.Person)
-            //    .WithMany(w => w.LibraryCards)
-            //    .HasForeignKey(k => k.PersonId);
-
-            //modelBuilder.Entity<LibraryCard>()
-            //    .HasOne(h => h.Book)
-            //    .WithMany(w => w.LibraryCards)
-            //    .HasForeignKey(k => k.BookId);
 
             modelBuilder.Entity<Person>(entity =>
             {
@@ -157,6 +162,10 @@ namespace Infrastructure.Data
                 entity.Property(e => e.MiddleName)
                     .HasMaxLength(50)
                     .HasColumnName("middle_name");
+
+                entity.HasMany(h => h.Books)
+                      .WithMany(w => w.People)
+                      .UsingEntity(t => t.ToTable("LibraryCard"));
             });
 
             OnModelCreatingPartial(modelBuilder);

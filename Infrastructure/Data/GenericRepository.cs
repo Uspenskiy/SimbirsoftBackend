@@ -82,7 +82,7 @@ namespace Infrastructure.Data
                 }
                 query = orderQuery;
             }
-            if(spec.Includes != null)
+            if (spec.Includes != null)
             {
                 query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
             }

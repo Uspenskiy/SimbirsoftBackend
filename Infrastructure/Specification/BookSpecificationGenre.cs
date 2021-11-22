@@ -12,7 +12,7 @@ namespace Infrastructure.Specification
         public BookSpecificationGenre(int id)
             : base(x => x.Id == id)
         {
-            AddInclude(i => i.BookGenres);
+            AddInclude(i => i.LibraryCards);
         }
     }
 }

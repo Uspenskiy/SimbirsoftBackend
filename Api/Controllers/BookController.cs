@@ -25,31 +25,32 @@ namespace Api.Controllers
     {
         private readonly ILogger<BookController> _logger;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<Person> _humanRepository;
+        private readonly AppDbContext context;
         private readonly IGenericRepository<Book> _bookRepository;
-        private readonly IBookGenreService _genreService;
 
         public BookController(ILogger<BookController> logger,
-            IMapper mapper, 
-            IGenericRepository<Person> humanRepository,
-            IGenericRepository<Book> bookRepository,
-            IBookGenreService genreService)
+            IMapper mapper,
+            AppDbContext context,
+            IGenericRepository<Book> bookRepository)
         {
             _logger = logger;
             _mapper = mapper;
-            _humanRepository = humanRepository;
+            this.context = context;
             _bookRepository = bookRepository;
-            _genreService = genreService;
         }
 
         /// <summary>
         /// 1.4.1.1 - Метод Get возвращающий список всех книг
         /// 1.2.2**.2 - возможность сделать запрос с сортировкой по автору, имени книги и жанру
+        /// 2.7.2.4.	Можно получить список всех книг с фильтром по автору 
+        /// (По любой комбинации трёх полей сущности автор. Имеется  ввиду условие equals + and )
+        /// 2.7.2.5.	Можно получить список книг по жанру. Книга + жанр + автор
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         public async Task<IEnumerable<BookDto>> GetBooks([FromQuery] BookSpecParams bookSpecParams)
         {
+            var user = context.Books.Include(i => i.Genres).FirstOrDefault();
             var spec = new BookSpecificationAuthorTitleGenre(bookSpecParams);
             var books = await _bookRepository.ListAsync(spec);
             return _mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(books);
@@ -69,18 +70,19 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 2.7.2.1.	Книга может быть добавлена (POST) (вместе с автором и жанром) книга + автор + жанр
+        /// 2.7.2.1. - Книга может быть добавлена (POST) (вместе с автором и жанром) книга + автор + жанр
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<BookDto>> CreateBook(BookDto dto)
         {
-            var author = await _humanRepository.GetByIdAsync(dto.Author.Id);
-            if (author == null) return BadRequest();
-            var book = _mapper.Map<BookDto, Book>(dto);
-            var result = _bookRepository.Add(book);
-            return Ok(_mapper.Map<Book, BookDto>(result));
+            //var author = await _humanRepository.GetByIdAsync(dto.Author.Id);
+            //if (author == null) return BadRequest();
+            //var book = _mapper.Map<BookDto, Book>(dto);
+            //var result = _bookRepository.Add(book);
+            //return Ok(_mapper.Map<Book, BookDto>(result));
+            return Ok();
         }
 
         /// <summary>
@@ -95,13 +97,14 @@ namespace Api.Controllers
         [HttpPut]
         public async Task<ActionResult<BookDto>> UpdateGenre(BookDto dto)
         {
-            var book = await _bookRepository.GetByIdAsync(dto.Id);
-            var genres = _mapper.Map <IEnumerable <GenreDto>, IEnumerable <Genre>> (dto.Genres);
-            var result = await _genreService.UpdateBookGenres(book, genres);
-            if (result) return BadRequest(Error.GetJsonError("Не удалось обновить жанры"));
-            var spec = new BookSpecificationGenre(dto.Id);
-            var bookUpdate = await _bookRepository.GetEntityWithSpec(spec);
-            return Ok(_mapper.Map<Book, BookDto>(bookUpdate));
+            //var book = await _bookRepository.GetByIdAsync(dto.Id);
+            //var genres = _mapper.Map<IEnumerable<GenreDto>, IEnumerable<Genre>>(dto.Genres);
+            //var result = await _genreService.UpdateBookGenres(book, genres);
+            //if (result) return BadRequest(Error.GetJsonError("Не удалось обновить жанры"));
+            //var spec = new BookSpecificationGenre(dto.Id);
+            //var bookUpdate = await _bookRepository.GetEntityWithSpec(spec);
+            //return Ok(_mapper.Map<Book, BookDto>(bookUpdate));
+            return Ok();
         }
 
         /// <summary>
