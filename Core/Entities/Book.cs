@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+#nullable disable
 
 namespace Core.Entities
 {
-    /// <summary>
-    /// 1.2.2 - Класс книги
-    /// </summary>
-    public class Book
+    public partial class Book : BaseEntity
     {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Genre { get; set; }
-        public Human Author { get; set; }
+        public string Name { get; set; }
+        public int? AuthorId { get; set; }
+        public virtual Author Author { get; set; }
+        public IReadOnlyList<BookGenre> BookGenres { get; set; }
+        public IReadOnlyList<LibraryCard> LibraryCards { get; set; }
     }
 }

@@ -15,9 +15,9 @@ namespace Dto
         public int Id { get; set; }
         [Required(ErrorMessage = "Укажите название книги")]
         public string Title { get; set; }
-        [Required(ErrorMessage = "Укажите жанр книги")]
-        public string Genre { get; set; }
+        [Required(ErrorMessage = "Укажите жанры книги")]
+        public IEnumerable<GenreDto> Genres { get; set; }
         [Required(ErrorMessage = "Укажите автора книги")]
-        public HumanDto Author { get; set; }
+        public AuthorDto Author { get; set; }
     }
 }

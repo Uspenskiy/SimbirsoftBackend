@@ -14,7 +14,7 @@ namespace Dto
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Укажите человека взявшего книгу")]
-        public HumanDto Person { get; set; }
+        public PersonDto Person { get; set; }
         [Required(ErrorMessage = "Укажите взятую книгу")]
         public BookDto Book { get; set; }
         public DateTimeOffset DateTimeCreate { get; set; }

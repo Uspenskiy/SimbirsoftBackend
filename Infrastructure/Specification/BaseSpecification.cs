@@ -15,20 +15,29 @@ namespace Infrastructure.Specification
 
         }
         
-        public BaseSpecification(Func<T, bool> criteria)
+        public BaseSpecification(Expression<Func<T, bool>> criteria)
         {
             Criteria = criteria;
         }
 
-        public Func<T, bool> Criteria { get; private set; }
+        public Expression<Func<T, bool>> Criteria { get; private set; }
 
-        public List<Func<T, object>> OrderBy { get; private set; }
+        public List<Expression<Func<T, object>>> OrderBy { get; private set; }
 
-        protected void AddOrderBy(Func<T, object> orderBy)
+        public List<Expression<Func<T, object>>> Includes { get; private set; }
+
+        protected void AddOrderBy(Expression<Func<T, object>> orderBy)
         {
             if (OrderBy == null)
-                OrderBy = new List<Func<T, object>>();
+                OrderBy = new List<Expression<Func<T, object>>>();
             OrderBy.Add(orderBy);
+        }
+
+        protected void AddInclude(Expression<Func<T, object>> includeExpression)
+        {
+            if (Includes == null)
+                Includes = new List<Expression<Func<T, object>>>();
+            Includes.Add(includeExpression);
         }
     }
 }

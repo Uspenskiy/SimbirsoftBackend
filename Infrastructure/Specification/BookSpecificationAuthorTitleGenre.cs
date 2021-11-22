@@ -1,5 +1,5 @@
-﻿using Core;
-using Core.Entities;
+﻿using Core.Entities;
+using Core.QueryParams;
 using System;
 using System.Collections.Generic;
 using System.Linq;

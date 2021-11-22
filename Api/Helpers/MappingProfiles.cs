@@ -15,8 +15,8 @@ namespace Api.Helpers
             CreateMap<Book, BookDto>();
             CreateMap<BookDto, Book>();
 
-            CreateMap<Human, HumanDto>();
-            CreateMap<HumanDto, Human>();
+            CreateMap<Person, PersonDto>();
+            CreateMap<PersonDto, Person>();
 
             CreateMap<LibraryCard, LibraryCardDto>();
             CreateMap<LibraryCardDto, LibraryCard>();

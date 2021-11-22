@@ -9,7 +9,8 @@ namespace Core.Interfaces
 {
     public interface ISpecification<T>
     {
-        Func<T, bool> Criteria { get; }
-        List<Func<T, object>> OrderBy { get; }
+        Expression<Func<T, bool>> Criteria { get; }
+        List<Expression<Func<T, object>>> OrderBy { get; }
+        List<Expression<Func<T, object>>> Includes { get; }
     }
 }

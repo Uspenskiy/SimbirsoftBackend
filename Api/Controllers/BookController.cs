@@ -1,10 +1,13 @@
-﻿using AutoMapper;
-using Core;
+﻿using Api.Helpers;
+using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
+using Core.QueryParams;
 using Dto;
+using Infrastructure.Data;
 using Infrastructure.Specification;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,18 +25,21 @@ namespace Api.Controllers
     {
         private readonly ILogger<BookController> _logger;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<Human> _humanRepository;
+        private readonly IGenericRepository<Person> _humanRepository;
         private readonly IGenericRepository<Book> _bookRepository;
+        private readonly IBookGenreService _genreService;
 
         public BookController(ILogger<BookController> logger,
-            IMapper mapper,
-            IGenericRepository<Human> humanRepository,
-            IGenericRepository<Book> bookRepository)
+            IMapper mapper, 
+            IGenericRepository<Person> humanRepository,
+            IGenericRepository<Book> bookRepository,
+            IBookGenreService genreService)
         {
             _logger = logger;
             _mapper = mapper;
             _humanRepository = humanRepository;
             _bookRepository = bookRepository;
+            _genreService = genreService;
         }
 
         /// <summary>
@@ -63,7 +69,7 @@ namespace Api.Controllers
         }
 
         /// <summary>
-        /// 1.4.2 - Метод POST добавляющий новую книгу
+        /// 2.7.2.1.	Книга может быть добавлена (POST) (вместе с автором и жанром) книга + автор + жанр
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
@@ -73,21 +79,44 @@ namespace Api.Controllers
             var author = await _humanRepository.GetByIdAsync(dto.Author.Id);
             if (author == null) return BadRequest();
             var book = _mapper.Map<BookDto, Book>(dto);
-            var result = await _bookRepository.AddAsync(book);
+            var result = _bookRepository.Add(book);
             return Ok(_mapper.Map<Book, BookDto>(result));
         }
 
         /// <summary>
-        /// 1.4.3 - Метод DELETE удаляющий книгу
+        /// 2.7.2.3. - Книге можно присвоить новый жанр, или удалить один из имеющихся 
+        /// (PUT с телом.На вход сущность Book или её Dto) 
+        /// При добавлении или удалении вы должны просто либо добавлять запись, 
+        /// либо удалять из списка жанров. Каскадно удалять все жанры и книги с таким жанром нельзя! 
+        /// Книга + жанр + автор
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        [HttpPut]
+        public async Task<ActionResult<BookDto>> UpdateGenre(BookDto dto)
+        {
+            var book = await _bookRepository.GetByIdAsync(dto.Id);
+            var genres = _mapper.Map <IEnumerable <GenreDto>, IEnumerable <Genre>> (dto.Genres);
+            var result = await _genreService.UpdateBookGenres(book, genres);
+            if (result) return BadRequest(Error.GetJsonError("Не удалось обновить жанры"));
+            var spec = new BookSpecificationGenre(dto.Id);
+            var bookUpdate = await _bookRepository.GetEntityWithSpec(spec);
+            return Ok(_mapper.Map<Book, BookDto>(bookUpdate));
+        }
+
+        /// <summary>
+        /// 2.7.2.2.	Книга может быть удалена из списка библиотеки (но только если она не у пользователя) по ID (ок, или ошибка, что книга у пользователя)
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteBook(int id)
         {
-            var book = await _bookRepository.GetByIdAsync(id);
-            if (book == null) return BadRequest();
-            await _bookRepository.DeleteAsync(book);
+            var spec = new BookSpecificationLibraryCard(id);
+            var book = await _bookRepository.GetEntityWithSpec(spec);
+            if (book == null) return BadRequest(Error.GetJsonError("Не удалось удалить книгу"));
+            if (book.LibraryCards.Count != 0) return BadRequest(Error.GetJsonError("Книга у пользователя"));
+            _bookRepository.Delete(book);
             return Ok();
         }
     }

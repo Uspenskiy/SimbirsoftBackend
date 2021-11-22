@@ -10,7 +10,7 @@ namespace Dto
     /// <summary>
     /// 1.2.1 - Класс презентор Human
     /// </summary>
-    public class HumanDto
+    public class PersonDto
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Укажите имя человека")]

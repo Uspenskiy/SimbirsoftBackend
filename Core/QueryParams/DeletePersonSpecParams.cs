@@ -4,17 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Core.QueryParams
 {
-    /// <summary>
-    /// 1.2.1 - Класс пользователя
-    /// </summary>
-    public class Human 
+    public class DeletePersonSpecParams
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public string Patronymic { get; set; }
-        public DateTimeOffset Birthday { get; set; }
+
     }
 }

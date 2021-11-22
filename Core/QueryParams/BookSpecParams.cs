@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core
+namespace Core.QueryParams
 {
     /// <summary>
     /// 1.2.2** - класс отвечающий за сортировку по автору, имени книги и жанру
