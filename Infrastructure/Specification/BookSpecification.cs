@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Specification
 {
-    public class BookSpecificationGenre : BaseSpecification<Book>
+    public class BookSpecification : BaseSpecification<Book>
     {
-        public BookSpecificationGenre(int id)
+        public BookSpecification(int id)
             : base(x => x.Id == id)
         {
-            AddInclude(i => i.LibraryCards);
+            AddInclude(i => i.Author);
+            AddInclude(i => i.Genres);
+            AddInclude(i => i.People);
         }
     }
 }

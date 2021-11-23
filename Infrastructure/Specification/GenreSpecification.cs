@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Specification
 {
-    public class PersonSpecificationTakenBook : BaseSpecification<Person>
+    public class GenreSpecification : BaseSpecification<Genre>
     {
+        public GenreSpecification(string genreName)
+            : base(x => x.GenreName.ToLower() == genreName)
+        { }
 
-        public PersonSpecificationTakenBook(int id)
+        public GenreSpecification(int id)
             : base(x => x.Id == id)
         {
             AddInclude(i => i.Books);
-            AddInclude("Books.Author");
-            AddInclude("Books.Genres");
         }
     }
 }

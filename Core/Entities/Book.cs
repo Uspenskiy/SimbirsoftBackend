@@ -8,9 +8,9 @@ namespace Core.Entities
         public string Name { get; set; }
         public int? AuthorId { get; set; }
         public virtual Author Author { get; set; }
-        public IReadOnlyList<Genre> Genres { get; set; }
-        public IReadOnlyList<Person> People { get; set; }
-        public virtual IReadOnlyList<BookGenre> BookGenres { get; set; }
-        public virtual IReadOnlyList<LibraryCard> LibraryCards { get; set; }
+        public List<Genre> Genres { get; set; }
+        public List<Person> People { get; set; }
+        public List<BookGenre> BookGenres { get; set; }
+        public List<LibraryCard> LibraryCards { get; set; }
     }
 }

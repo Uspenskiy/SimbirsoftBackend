@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface ILibraryCardService
+    public interface IAuthorService
     {
-        Task<Boolean> TakeBook(Book book, Person person);
-
-        Task<Boolean> ReturnBook(Book book, Person person);
+        Task<Author> GetAuthor(string name, string lastName, string middlename);
     }
 }

@@ -1,5 +1,11 @@
-﻿using Dto;
+﻿using Api.Helpers;
+using AutoMapper;
+using Core.Entities;
+using Core.Interfaces;
+using Dto;
+using Infrastructure.Specification;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +20,17 @@ namespace Api.Controllers
     [Route("[controller]")]
     public class GenreController : ControllerBase
     {
-        public GenreController()
-        {
+        private readonly ILogger<GenreController> _logger;
+        private readonly IMapper _mapper;
+        private readonly IGenericRepository<Genre> _repository;
 
+        public GenreController(ILogger<GenreController> logger,
+            IMapper mapper,
+            IGenericRepository<Genre> repository)
+        {
+            _logger = logger;
+            _mapper = mapper;
+            _repository = repository;
         }
 
         /// <summary>
@@ -26,7 +40,8 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<GenreDto>> GetGenres()
         {
-            return new List<GenreDto>();
+            var ganres = await _repository.ListAllAsync();
+            return _mapper.Map<IEnumerable<Genre>, IEnumerable<GenreDto>>(ganres);
         }
 
         /// <summary>
@@ -35,9 +50,11 @@ namespace Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpGet("Statistic/{id}")]
-        public async Task<int> GetStatistic(GenreDto dto)
+        public async Task<int> GetStatistic(int id)
         {
-            return 0;
+            var spec = new GenreSpecification(id);
+            var genere = await _repository.GetEntityWithSpec(spec);
+            return genere.Books.Count();
         }
 
         /// <summary>
@@ -46,9 +63,13 @@ namespace Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<GenreDto> AddGenre(GenreDto dto)
+        public async Task<ActionResult<GenreDto>> AddGenre(GenreDto dto)
         {
-            return dto;
+            var genere = _mapper.Map<GenreDto, Genre>(dto);
+            var result = _repository.Add(genere);
+            if (!(await _repository.SaveAsync()))
+                return BadRequest(new Error("Не удалось добавить жанр"));
+            return Ok(_mapper.Map<Genre, GenreDto>(result));
         }
 
     }

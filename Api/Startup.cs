@@ -6,6 +6,7 @@ using Api.Helpers;
 using Api.Middlewares;
 using Core.Entities;
 using Core.Interfaces;
+using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -35,6 +36,8 @@ namespace Api
             services.AddDbContext<AppDbContext>(options => 
              options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
+            services.AddScoped<IGenreService, GenreService>();
+            services.AddScoped<IAuthorService, AuthorService>();
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddControllers();
             services.AddSwaggerGen(c =>

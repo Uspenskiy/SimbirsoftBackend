@@ -25,18 +25,21 @@ namespace Api.Controllers
     {
         private readonly ILogger<BookController> _logger;
         private readonly IMapper _mapper;
-        private readonly AppDbContext context;
         private readonly IGenericRepository<Book> _bookRepository;
+        private readonly IAuthorService _authorService;
+        private readonly IGenreService _genreService;
 
         public BookController(ILogger<BookController> logger,
             IMapper mapper,
-            AppDbContext context,
-            IGenericRepository<Book> bookRepository)
+            IGenericRepository<Book> bookRepository,
+            IAuthorService authorService,
+            IGenreService genreService)
         {
             _logger = logger;
             _mapper = mapper;
-            this.context = context;
             _bookRepository = bookRepository;
+            _authorService = authorService;
+            _genreService = genreService;
         }
 
         /// <summary>
@@ -50,7 +53,6 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<BookDto>> GetBooks([FromQuery] BookSpecParams bookSpecParams)
         {
-            var user = context.Books.Include(i => i.Genres).FirstOrDefault();
             var spec = new BookSpecificationAuthorTitleGenre(bookSpecParams);
             var books = await _bookRepository.ListAsync(spec);
             return _mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(books);
@@ -77,12 +79,13 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<ActionResult<BookDto>> CreateBook(BookDto dto)
         {
-            //var author = await _humanRepository.GetByIdAsync(dto.Author.Id);
-            //if (author == null) return BadRequest();
-            //var book = _mapper.Map<BookDto, Book>(dto);
-            //var result = _bookRepository.Add(book);
-            //return Ok(_mapper.Map<Book, BookDto>(result));
-            return Ok();
+            var book = _mapper.Map<BookDto, Book>(dto);
+            book.Genres = (await _genreService.GetGenres(dto.Genres.Select(s => s.GenreName))).ToList();
+            book.Author = await _authorService.GetAuthor(dto.Author.FirstName, dto.Author.LastName, dto.Author.MiddleName);
+            var result = _bookRepository.Add(book);
+            if (!(await _bookRepository.SaveAsync()))
+                return BadRequest(new Error("Не удалось создать книгу"));
+            return Ok(_mapper.Map<Book, BookDto>(result));
         }
 
         /// <summary>
@@ -97,14 +100,13 @@ namespace Api.Controllers
         [HttpPut]
         public async Task<ActionResult<BookDto>> UpdateGenre(BookDto dto)
         {
-            //var book = await _bookRepository.GetByIdAsync(dto.Id);
-            //var genres = _mapper.Map<IEnumerable<GenreDto>, IEnumerable<Genre>>(dto.Genres);
-            //var result = await _genreService.UpdateBookGenres(book, genres);
-            //if (result) return BadRequest(Error.GetJsonError("Не удалось обновить жанры"));
-            //var spec = new BookSpecificationGenre(dto.Id);
-            //var bookUpdate = await _bookRepository.GetEntityWithSpec(spec);
-            //return Ok(_mapper.Map<Book, BookDto>(bookUpdate));
-            return Ok();
+            var spec = new BookSpecification(dto.Id);
+            var book = await _bookRepository.GetEntityWithSpec(spec);
+            book.Genres = (await _genreService.UpdateGenres(book.Genres, dto.Genres.Select(s => s.GenreName))).ToList();
+            var result = _bookRepository.Update(book);
+            if (!(await _bookRepository.SaveAsync()))
+                return BadRequest(new Error("Не удалось обновить жанры у книги"));
+            return Ok(_mapper.Map<Book, BookDto>(result));
         }
 
         /// <summary>
@@ -115,11 +117,13 @@ namespace Api.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteBook(int id)
         {
-            var spec = new BookSpecificationLibraryCard(id);
+            var spec = new BookSpecification(id);
             var book = await _bookRepository.GetEntityWithSpec(spec);
-            if (book == null) return BadRequest(Error.GetJsonError("Не удалось удалить книгу"));
-            if (book.LibraryCards.Count != 0) return BadRequest(Error.GetJsonError("Книга у пользователя"));
+            if (book == null) return BadRequest(new Error("Не удалось удалить книгу"));
+            if (book.People.Count != 0) return BadRequest(new Error("Книга у пользователя"));
             _bookRepository.Delete(book);
+            if (!(await _bookRepository.SaveAsync()))
+                return BadRequest(new Error("Не удалось удалить книгу"));
             return Ok();
         }
     }

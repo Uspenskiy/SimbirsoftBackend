@@ -58,13 +58,14 @@ namespace Api.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        //[HttpGet("TakenBooks/{id}")]
-        //public async Task<IEnumerable<BookDto>> GetTakenBook(int id)
-        //{
-        //    var spec = new PersonSpecificationTakenBook(id);
-        //    var person = await _personRepository.GetEntityWithSpec(spec);
-        //    return _mapper.Map<IEnumerable<LibraryCard>, IEnumerable<BookDto>>(person.LibraryCards);
-        //}
+        [HttpGet("TakenBooks/{id}")]
+        public async Task<ActionResult<IEnumerable<BookDto>>> GetTakenBook(int id)
+        {
+            var spec = new PersonSpecificationTakenBook(id);
+            var person = await _personRepository.GetEntityWithSpec(spec);
+            if (person == null) return NotFound(new Error("Не удалось создать пользователя"));
+            return Ok(_mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(person.Books));
+        }
 
         /// <summary>
         /// 1.3.1.2 - Список людей, которые пишут книги.
@@ -89,47 +90,47 @@ namespace Api.Controllers
             var person = _mapper.Map<PersonDto, Person>(dto);
             var entity = _personRepository.Add(person);
             if (!(await _personRepository.SaveAsync()))
-                return BadRequest(Error.GetJsonError("Не удалось создать пользователя"));
+                return BadRequest(new Error("Не удалось создать пользователя"));
             return _mapper.Map<Person, PersonDto>(entity);
         }
 
         /// <summary>
-        /// 2.7.1.6.	Пользователь может взять книгу (добавить в список книг пользователя книгу)  Пользователь + книги
+        /// 2.7.1.6. - Пользователь может взять книгу (добавить в список книг пользователя книгу)  Пользователь + книги
         /// </summary>
         /// <param name="id"></param>
         /// <param name="book"></param>
         /// <returns></returns>
-        //[HttpPost("TakeBook")]
-        //public async Task<ActionResult<PersonDto>> TakeBook([FromBody] LibraryCardDto dto)
-        //{
-        //    //var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
-        //    //var person = await _personRepository.GetByIdAsync(dto.Person.Id);
-        //    //var result = await _cardService.TakeBook(book, person);
-        //    //if (!result) return BadRequest(Error.GetJsonError("Пользователю не удалось взять книгу"));
-        //    //var spec = new PersonSpecificationTakenBook(dto.Person.Id);
-        //    //var personWithBook = await _personRepository.GetEntityWithSpec(spec);
-        //    //return Ok(_mapper.Map<Person, PersonDto>(personWithBook));
-        //    return Ok();
-        //}
+        [HttpPost("TakeBook")]
+        public async Task<ActionResult<PersonWithBookDto>> TakeBook(LibraryCardDto dto)
+        {
+            var spec = new PersonSpecificationTakenBook(dto.Person.Id);
+            var person = await _personRepository.GetEntityWithSpec(spec);
+            var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
+            person.Books.Add(book);
+            _personRepository.Update(person);
+            if (!(await _personRepository.SaveAsync()))
+                return BadRequest(new Error("Не удалось взять книгу"));
+            return Ok(_mapper.Map<Person, PersonWithBookDto>(person));
+        }
 
         /// <summary>
-        /// 2.7.1.7.	Пользователь может вернуть книгу (удалить из списка книг пользователя книгу) пользователь + книги
+        /// 2.7.1.7. - Пользователь может вернуть книгу (удалить из списка книг пользователя книгу) пользователь + книги
         /// </summary>
         /// <param name="id"></param>
         /// <param name="book"></param>
         /// <returns></returns>
-        //[HttpPost("TakeBook")]
-        //public async Task<ActionResult> ReturnBook([FromBody] LibraryCardDto dto)
-        //{
-        //    //var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
-        //    //var person = await _personRepository.GetByIdAsync(dto.Person.Id);
-        //    //var result = await _cardService.ReturnBook(book, person);
-        //    //if (!result) return BadRequest(Error.GetJsonError("Пользователю не удалось вернуть книгу"));
-        //    //var spec = new PersonSpecificationTakenBook(dto.Person.Id);
-        //    //var personWithBook = await _personRepository.GetEntityWithSpec(spec);
-        //    //return Ok(_mapper.Map<Person, PersonDto>(personWithBook));
-        //    return Ok();
-        //}
+        [HttpPost("ReturnBook")]
+        public async Task<ActionResult<PersonWithBookDto>> ReturnBook(LibraryCardDto dto)
+        {
+            var spec = new PersonSpecificationTakenBook(dto.Person.Id);
+            var person = await _personRepository.GetEntityWithSpec(spec);
+            var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
+            person.Books.Remove(book);
+            _personRepository.Update(person);
+            if (!(await _personRepository.SaveAsync()))
+                return BadRequest(new Error("Не удалось взять книгу"));
+            return Ok(_mapper.Map<Person, PersonWithBookDto>(person));
+        }
 
         /// <summary>
         /// 2.7.1.2. - Информация о пользователе может быть изменена (PUT) (вернуть пользователя)
@@ -140,10 +141,12 @@ namespace Api.Controllers
         public async Task<ActionResult<PersonDto>> UpdatePerson(PersonDto dto)
         {
             var person = await _personRepository.GetByIdAsync(dto.Id);
+            if (person == null) 
+                return NotFound(new Error("Пользователь отсутсвует"));
             _mapper.Map(dto, person);
             var entity = _personRepository.Update(person);
             if (!(await _personRepository.SaveAsync()))
-                return BadRequest(Error.GetJsonError("Не удалось обновить пользователя"));
+                return BadRequest(new Error("Не удалось обновить пользователя"));
             return _mapper.Map<Person, PersonDto>(entity);
         }
 
@@ -156,9 +159,11 @@ namespace Api.Controllers
         public async Task<ActionResult> DeletePerson(int id)
         {
             var person = await _personRepository.GetByIdAsync(id);
+            if (person == null)
+                return NotFound(new Error("Пользователь отсутсвует"));
             _personRepository.Delete(person);
             if (!(await _personRepository.SaveAsync()))
-                return BadRequest(Error.GetJsonError("Не удалось удалить пользователя"));
+                return BadRequest(new Error("Не удалось удалить пользователя"));
             return Ok();
         }
 
@@ -173,10 +178,14 @@ namespace Api.Controllers
         public async Task<ActionResult> DeletePersonByName([FromQuery] DeletePersonSpecParams deletePersonSpecParams)
         {
             var spec = new PersonSpecificationNameSearch(deletePersonSpecParams);
-            var person = await _personRepository.GetEntityWithSpec(spec);
-            _personRepository.Delete(person);
+            var people = await _personRepository.ListAsync(spec);
+            if (people == null) return NotFound(new Error("Пользователь отсутсвует"));
+            foreach (var person in people)
+            {
+                _personRepository.Delete(person);
+            }
             if (!(await _personRepository.SaveAsync()))
-                return BadRequest(Error.GetJsonError("Не удалось удалить пользователя"));
+                return BadRequest(new Error("Не удалось удалить пользователя"));
             return Ok();
         }
     }

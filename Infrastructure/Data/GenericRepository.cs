@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Infrastructure.Specification;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
@@ -30,7 +31,7 @@ namespace Infrastructure.Data
 
         public async Task<T> GetEntityWithSpec(ISpecification<T> spec)
         {
-            return await Apply(spec).FirstOrDefaultAsync();
+            return await ApplySpecification(spec).FirstOrDefaultAsync();
         }
 
         public async Task<IReadOnlyList<T>> ListAllAsync()
@@ -40,7 +41,7 @@ namespace Infrastructure.Data
 
         public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec)
         {
-            return await Apply(spec).ToListAsync();
+            return await ApplySpecification(spec).ToListAsync();
         }
 
         public T Add(T entity)
@@ -67,26 +68,9 @@ namespace Infrastructure.Data
             return result > 0;
         }
 
-        private IQueryable<T> Apply(ISpecification<T> spec)
+        private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {
-            var query = _context.Set<T>().AsQueryable();
-            if (spec.Criteria != null)
-                query = query.Where(spec.Criteria);
-            if (spec.OrderBy != null)
-            {
-                var orderQuery = query.OrderBy(spec.OrderBy.First());
-                if (spec.OrderBy.Count > 1)
-                {
-                    foreach (var thenBy in spec.OrderBy.Skip(1))
-                        orderQuery = orderQuery.ThenBy(thenBy);
-                }
-                query = orderQuery;
-            }
-            if (spec.Includes != null)
-            {
-                query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
-            }
-            return query;
+            return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
         }
     }
 }

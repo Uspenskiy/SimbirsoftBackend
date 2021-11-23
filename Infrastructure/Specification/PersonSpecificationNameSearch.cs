@@ -10,10 +10,14 @@ namespace Infrastructure.Specification
 {
     public class PersonSpecificationNameSearch : BaseSpecification<Person>
     {
+        public PersonSpecificationNameSearch()
+        { }
+
         public PersonSpecificationNameSearch(string nameSearch)
-            : base(x => x.FirstName.Contains(nameSearch, StringComparison.OrdinalIgnoreCase) ||
-            x.LastName.Contains(nameSearch, StringComparison.InvariantCultureIgnoreCase) || 
-            x.MiddleName.Contains(nameSearch, StringComparison.InvariantCultureIgnoreCase))
+            : base(x => String.IsNullOrEmpty(nameSearch) || 
+            x.FirstName.ToLower().Contains(nameSearch.ToLower()) || 
+            x.LastName.ToLower().Contains(nameSearch.ToLower()) ||
+            x.MiddleName.ToLower().Contains(nameSearch.ToLower()))
         { }
 
         public PersonSpecificationNameSearch(DeletePersonSpecParams deletePersonSpecParams)

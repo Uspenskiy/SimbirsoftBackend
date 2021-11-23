@@ -8,9 +8,11 @@ namespace Api.Helpers
 {
     public class Error
     {
-        public static string GetJsonError(string message)
+        public Error(string message)
         {
-            return JsonSerializer.Serialize(new { ErrorMessage = message });
+            Message = message;
         }
+
+        public string Message { get; set; }
     }
 }
