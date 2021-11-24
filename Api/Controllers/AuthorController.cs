@@ -1,5 +1,6 @@
 ﻿using Api.Helpers;
 using AutoMapper;
+using Core;
 using Core.Entities;
 using Core.Interfaces;
 using Dto;
@@ -23,25 +24,34 @@ namespace Api.Controllers
         private readonly ILogger<AuthorController> _logger;
         private readonly IMapper _mapper;
         private readonly IGenericRepository<Author> _authotRepository;
+        private readonly IGenericRepository<Book> _bookRepository;
 
         public AuthorController(ILogger<AuthorController> logger,
             IMapper mapper,
-            IGenericRepository<Author> authotRepository)
+            IGenericRepository<Author> authotRepository,
+            IGenericRepository<Book> bookRepository)
         {
             _logger = logger;
             _mapper = mapper;
             _authotRepository = authotRepository;
+            _bookRepository = bookRepository;
         }
 
         /// <summary>
         /// 2.7.3.1.	Можно получить список всех авторов. (без книг, как и везде, где не указано обратное)
+        /// 2.8.2.	Создать новый метод контроллера,  который будет выводить список всех авторов, 
+        /// у которых есть хотя бы одна книга, написанная в определенный год(этот год прокидывать в query параметрах контроллера). 
+        /// Отсортировать список авторов по алфавиту. 
+        /// Предусмотреть возможность сортировки по возрастанию и по 
+        /// убыванию(этот параметр также передавать через параметры контроллера)
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<AuthorDto>> GetAuthor()
+        public async Task<IEnumerable<AuthorToReturnDto>> GetAuthor([FromQuery] AuthorSpecParams specParams)
         {
-            var authors = await _authotRepository.ListAllAsync();
-            return _mapper.Map<IEnumerable<Author>, IEnumerable<AuthorDto>>(authors);
+            var spec = new AuthorSpecification(specParams);
+            var authors = await _authotRepository.ListAsync(spec);
+            return _mapper.Map<IEnumerable<Author>, IEnumerable<AuthorToReturnDto>>(authors);
         }
 
         /// <summary>
@@ -50,11 +60,29 @@ namespace Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<IEnumerable<BookDto>> GetBooks(int id)
+        public async Task<ActionResult<IEnumerable<BookToReturnDto>>> GetBooks(int id)
         {
             var spec = new AuthorSpecification(id);
             var author = await _authotRepository.GetEntityWithSpec(spec);
-            return _mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(author.Books);
+            if (author == null) return NotFound(new Error("Автор не найден"));
+            var result = _mapper.Map<IEnumerable<Book>, IEnumerable<BookToReturnDto>>(author.Books);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// 2.8.3.	В этом же контроллере создать новый метод, который будет выводить всех авторов, 
+        /// у которых название книги СОДЕРЖИТ указанную в параметрах подстроку 
+        /// ("Война и мир" содержит "мир", регистр не учитывать)
+        /// </summary>
+        /// <param name="searchString"></param>
+        /// <returns></returns>
+        [HttpGet("searchString")]
+        public async Task<ActionResult<IEnumerable<AuthorToReturnDto>>> GetBooks(string searchString)
+        {
+            var spec = new BookSpecification(searchString);
+            var books = await _bookRepository.ListAsync(spec);
+            var authors = books.Select(s => s.Author);
+            return Ok(_mapper.Map<IEnumerable<Author>, IEnumerable<AuthorToReturnDto>>(authors));
         }
 
         /// <summary>
@@ -63,13 +91,14 @@ namespace Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<AuthorWithBookDto>> AddAuthor(AuthorWithBookDto dto)
+        public async Task<ActionResult<AuthorToReturnWithBookDto>> AddAuthor(AuthorToAddWithBookDto dto)
         {
-            var author = _mapper.Map<AuthorWithBookDto, Author>(dto);
-            var result = _authotRepository.Add(author);
+            var author = _mapper.Map<AuthorToAddWithBookDto, Author>(dto);
+            var addAuthor = _authotRepository.Add(author);
             if (!(await _authotRepository.SaveAsync()))
                 return BadRequest(new Error("Не удалось добавить автора"));
-            return Ok(_mapper.Map<Author, AuthorWithBookDto>(result));
+            var result = _mapper.Map<Author, AuthorToReturnWithBookDto>(addAuthor);
+            return Ok(result);
         }
 
         /// <summary>

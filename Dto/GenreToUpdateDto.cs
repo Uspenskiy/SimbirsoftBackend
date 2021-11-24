@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dto
 {
-    public class AuthorWithBookDto : AuthorDto
+    public class GenreToUpdateDto
     {
-        public IEnumerable<BookDto> Books { get; set; }
+        public int Id { get; set; }
+        public string GenreName { get; set; }
     }
 }

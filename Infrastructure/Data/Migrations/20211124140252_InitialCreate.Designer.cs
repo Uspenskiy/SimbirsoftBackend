@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20211122230449_InitialCreate")]
+    [Migration("20211124140252_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,37 +22,7 @@ namespace Infrastructure.Data.Migrations
                 .HasAnnotation("ProductVersion", "5.0.12")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            modelBuilder.Entity("BookGenre", b =>
-                {
-                    b.Property<int>("BooksId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("GenresId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("BooksId", "GenresId");
-
-                    b.HasIndex("GenresId");
-
-                    b.ToTable("BookGenre");
-                });
-
-            modelBuilder.Entity("BookPerson", b =>
-                {
-                    b.Property<int>("BooksId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PeopleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("BooksId", "PeopleId");
-
-                    b.HasIndex("PeopleId");
-
-                    b.ToTable("LibraryCard");
-                });
-
-            modelBuilder.Entity("Core.Entities.Author", b =>
+            modelBuilder.Entity("Infrastructure.Data.Author", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -82,7 +52,7 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("author");
                 });
 
-            modelBuilder.Entity("Core.Entities.Book", b =>
+            modelBuilder.Entity("Infrastructure.Data.Book", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,7 +77,7 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("book");
                 });
 
-            modelBuilder.Entity("Core.Entities.BookGenre", b =>
+            modelBuilder.Entity("Infrastructure.Data.BookGenre", b =>
                 {
                     b.Property<int>("BookId")
                         .HasColumnType("integer")
@@ -125,7 +95,7 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("book_genre");
                 });
 
-            modelBuilder.Entity("Core.Entities.Genre", b =>
+            modelBuilder.Entity("Infrastructure.Data.Genre", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -144,7 +114,7 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("genre");
                 });
 
-            modelBuilder.Entity("Core.Entities.LibraryCard", b =>
+            modelBuilder.Entity("Infrastructure.Data.LibraryCard", b =>
                 {
                     b.Property<int>("BookId")
                         .HasColumnType("integer")
@@ -162,7 +132,7 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("library_card");
                 });
 
-            modelBuilder.Entity("Core.Entities.Person", b =>
+            modelBuilder.Entity("Infrastructure.Data.Person", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -196,39 +166,9 @@ namespace Infrastructure.Data.Migrations
                     b.ToTable("person");
                 });
 
-            modelBuilder.Entity("BookGenre", b =>
+            modelBuilder.Entity("Infrastructure.Data.Book", b =>
                 {
-                    b.HasOne("Core.Entities.Book", null)
-                        .WithMany()
-                        .HasForeignKey("BooksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.Genre", null)
-                        .WithMany()
-                        .HasForeignKey("GenresId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BookPerson", b =>
-                {
-                    b.HasOne("Core.Entities.Book", null)
-                        .WithMany()
-                        .HasForeignKey("BooksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Core.Entities.Person", null)
-                        .WithMany()
-                        .HasForeignKey("PeopleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Core.Entities.Book", b =>
-                {
-                    b.HasOne("Core.Entities.Author", "Author")
+                    b.HasOne("Infrastructure.Data.Author", "Author")
                         .WithMany("Books")
                         .HasForeignKey("AuthorId")
                         .HasConstraintName("book_author_id_fkey");
@@ -236,15 +176,15 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("Core.Entities.BookGenre", b =>
+            modelBuilder.Entity("Infrastructure.Data.BookGenre", b =>
                 {
-                    b.HasOne("Core.Entities.Book", "Book")
+                    b.HasOne("Infrastructure.Data.Book", "Book")
                         .WithMany("BookGenres")
                         .HasForeignKey("BookId")
                         .HasConstraintName("book_genre_book_id_fkey")
                         .IsRequired();
 
-                    b.HasOne("Core.Entities.Genre", "Genre")
+                    b.HasOne("Infrastructure.Data.Genre", "Genre")
                         .WithMany("BookGenres")
                         .HasForeignKey("GenreId")
                         .HasConstraintName("book_genre_genre_id_fkey")
@@ -255,15 +195,15 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Genre");
                 });
 
-            modelBuilder.Entity("Core.Entities.LibraryCard", b =>
+            modelBuilder.Entity("Infrastructure.Data.LibraryCard", b =>
                 {
-                    b.HasOne("Core.Entities.Book", "Book")
+                    b.HasOne("Infrastructure.Data.Book", "Book")
                         .WithMany("LibraryCards")
                         .HasForeignKey("BookId")
                         .HasConstraintName("library_card_book_id_fkey")
                         .IsRequired();
 
-                    b.HasOne("Core.Entities.Person", "Person")
+                    b.HasOne("Infrastructure.Data.Person", "Person")
                         .WithMany("LibraryCards")
                         .HasForeignKey("PersonId")
                         .HasConstraintName("library_card_person_id_fkey")
@@ -274,24 +214,24 @@ namespace Infrastructure.Data.Migrations
                     b.Navigation("Person");
                 });
 
-            modelBuilder.Entity("Core.Entities.Author", b =>
+            modelBuilder.Entity("Infrastructure.Data.Author", b =>
                 {
                     b.Navigation("Books");
                 });
 
-            modelBuilder.Entity("Core.Entities.Book", b =>
+            modelBuilder.Entity("Infrastructure.Data.Book", b =>
                 {
                     b.Navigation("BookGenres");
 
                     b.Navigation("LibraryCards");
                 });
 
-            modelBuilder.Entity("Core.Entities.Genre", b =>
+            modelBuilder.Entity("Infrastructure.Data.Genre", b =>
                 {
                     b.Navigation("BookGenres");
                 });
 
-            modelBuilder.Entity("Core.Entities.Person", b =>
+            modelBuilder.Entity("Infrastructure.Data.Person", b =>
                 {
                     b.Navigation("LibraryCards");
                 });

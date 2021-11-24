@@ -9,10 +9,6 @@ namespace Infrastructure.Data
 {
     public partial class AppDbContext : DbContext
     {
-        public AppDbContext()
-        {
-        }
-
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
@@ -20,7 +16,9 @@ namespace Infrastructure.Data
 
         public virtual DbSet<Author> Authors { get; set; }
         public virtual DbSet<Book> Books { get; set; }
+        //public virtual DbSet<BookGenre> BookGenres { get; set; }
         public virtual DbSet<Genre> Genres { get; set; }
+        //public virtual DbSet<LibraryCard> LibraryCards { get; set; }
         public virtual DbSet<Person> People { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -65,14 +63,6 @@ namespace Infrastructure.Data
                     .WithMany(p => p.Books)
                     .HasForeignKey(d => d.AuthorId)
                     .HasConstraintName("book_author_id_fkey");
-
-                entity.HasMany(h => h.Genres)
-                      .WithMany(w => w.Books)
-                      .UsingEntity(t => t.ToTable("BookGenre"));
-
-                entity.HasMany(h => h.People)
-                      .WithMany(w => w.Books)
-                      .UsingEntity(t => t.ToTable("LibraryCard"));
             });
 
             modelBuilder.Entity<BookGenre>(entity =>
@@ -109,10 +99,6 @@ namespace Infrastructure.Data
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("genre_name");
-
-                entity.HasMany(h => h.Books)
-                      .WithMany(w => w.Genres)
-                      .UsingEntity(t => t.ToTable("BookGenre"));
             });
 
             modelBuilder.Entity<LibraryCard>(entity =>
@@ -162,10 +148,6 @@ namespace Infrastructure.Data
                 entity.Property(e => e.MiddleName)
                     .HasMaxLength(50)
                     .HasColumnName("middle_name");
-
-                entity.HasMany(h => h.Books)
-                      .WithMany(w => w.People)
-                      .UsingEntity(t => t.ToTable("LibraryCard"));
             });
 
             OnModelCreatingPartial(modelBuilder);

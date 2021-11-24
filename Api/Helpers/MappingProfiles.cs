@@ -12,35 +12,27 @@ namespace Api.Helpers
     {
         public MappingProfiles()
         {
-            CreateMap<Book, BookDto>()
-                .ForMember(d => d.Title, o => o.MapFrom(s => s.Name));
-            CreateMap<BookDto, Book>()
-                .ForMember(d => d.Name, o => o.MapFrom(s => s.Title));
+            CreateMap<Author, AuthorToReturnDto>();
 
-            CreateMap<Author, AuthorDto>();
-            CreateMap<AuthorDto, Author>();
+            CreateMap<AuthorToAddWithBookDto, Author>()
+                .ForMember(d => d.Books, o => o.MapFrom<BookNameResolver>());
 
-            CreateMap<Genre, GenreDto>();
-            CreateMap<GenreDto, Genre>();
+            CreateMap<Author, AuthorToReturnWithBookDto>();
 
-            CreateMap<LibraryCard, LibraryCardDto>();
-            CreateMap<LibraryCardDto, LibraryCard>();
+            CreateMap<Book, BookToReturnDto>();
 
-            CreateMap<PersonDto, Person>()
-                .ForMember(d => d.FirstName, o => o.MapFrom(s => s.Name))
-                .ForMember(d => d.LastName, o => o.MapFrom(s => s.Surname))
-                .ForMember(d => d.MiddleName, o => o.MapFrom(s => s.Patronymic))
-                .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.Birthday));
-            CreateMap<Person, PersonDto>()
-                .ForMember(d => d.Name, o => o.MapFrom(s => s.FirstName))
-                .ForMember(d => d.Surname, o => o.MapFrom(s => s.LastName))
-                .ForMember(d => d.Patronymic, o => o.MapFrom(s => s.MiddleName))
-                .ForMember(d => d.Birthday, o => o.MapFrom(s => s.BirthDate));
-            CreateMap<Person, PersonWithBookDto>()
-                .ForMember(d => d.Name, o => o.MapFrom(s => s.FirstName))
-                .ForMember(d => d.Surname, o => o.MapFrom(s => s.LastName))
-                .ForMember(d => d.Patronymic, o => o.MapFrom(s => s.MiddleName))
-                .ForMember(d => d.Birthday, o => o.MapFrom(s => s.BirthDate));
+            CreateMap<BookToAddDto, Book>()
+                .ForMember(d => d.Genres, o => o.MapFrom<GenreNameResolver>());
+
+            CreateMap<Genre, GenreToReturnDto>();
+            CreateMap<GenreToAddDto, Genre>();
+            CreateMap<GenreToUpdateDto, Genre>();
+
+            CreateMap<Person, PersonToReturnDto>();
+            CreateMap<PersonToAddDto, Person>();
+            CreateMap<PersonToUpdateDto, Person>();
+
+            CreateMap<Person, PersonToReturnWithBookDto>();
         }
     }
 }

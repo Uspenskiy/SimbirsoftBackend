@@ -15,7 +15,7 @@ namespace Infrastructure.Data
     /// 2.6 - Реализовать репозитории под все сущности кроме референсных (ManyToMany)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseTimeEntity
     {
         private readonly AppDbContext _context;
 
@@ -46,12 +46,15 @@ namespace Infrastructure.Data
 
         public T Add(T entity)
         {
+            entity.CreateEntityTime = DateTimeOffset.Now;
+            entity.UpdateEntityTime = DateTimeOffset.Now;
             EntityEntry<T> addEntiry = _context.Set<T>().Add(entity);
             return addEntiry.Entity;
         }
 
         public T Update(T entity)
         {
+            entity.UpdateEntityTime = DateTimeOffset.Now;
             EntityEntry<T> addEntiry = _context.Set<T>().Add(entity);
             _context.Entry(entity).State = EntityState.Modified;
             return addEntiry.Entity;

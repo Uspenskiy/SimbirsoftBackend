@@ -16,5 +16,11 @@ namespace Infrastructure.Specification
             AddInclude(i => i.Genres);
             AddInclude(i => i.People);
         }
+
+        public BookSpecification(string searchString)
+            : base(x => x.Name.ToLower().Contains(searchString.ToLower()))
+        {
+            AddInclude(i => i.Author);
+        }
     }
 }

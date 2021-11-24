@@ -3,15 +3,17 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Infrastructure.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211124191921_BookTimeCreate")]
+    partial class BookTimeCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,9 +60,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTimeOffset>("CreateEntityTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -77,9 +76,6 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("middle_name");
-
-                    b.Property<DateTimeOffset>("UpdateEntityTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -98,9 +94,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("author_id");
 
-                    b.Property<DateTimeOffset>("CreateEntityTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<DateTimeOffset>("DateCreate")
                         .HasColumnType("timestamp with time zone");
 
@@ -109,9 +102,6 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("name");
-
-                    b.Property<DateTimeOffset>("UpdateEntityTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -146,17 +136,11 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTimeOffset>("CreateEntityTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("GenreName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("genre_name");
-
-                    b.Property<DateTimeOffset>("UpdateEntityTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -193,9 +177,6 @@ namespace Infrastructure.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("birth_date");
 
-                    b.Property<DateTimeOffset>("CreateEntityTime")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -212,9 +193,6 @@ namespace Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
                         .HasColumnName("middle_name");
-
-                    b.Property<DateTimeOffset>("UpdateEntityTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 

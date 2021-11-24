@@ -30,11 +30,11 @@ namespace Core.QueryParams
         /// <summary>
         /// Автор книги
         /// </summary>
-        public AuthorDto Author { get; set; }
+        public AuthorToReturnDto Author { get; set; }
 
         /// <summary>
         /// Жанр книги
         /// </summary>
-        public GenreDto Genre { get; set; }
+        public GenreToReturnDto Genre { get; set; }
     }
 }

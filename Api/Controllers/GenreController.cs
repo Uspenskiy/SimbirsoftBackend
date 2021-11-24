@@ -38,10 +38,10 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<GenreDto>> GetGenres()
+        public async Task<IEnumerable<GenreToReturnDto>> GetGenres()
         {
             var ganres = await _repository.ListAllAsync();
-            return _mapper.Map<IEnumerable<Genre>, IEnumerable<GenreDto>>(ganres);
+            return _mapper.Map<IEnumerable<Genre>, IEnumerable<GenreToReturnDto>>(ganres);
         }
 
         /// <summary>
@@ -54,6 +54,7 @@ namespace Api.Controllers
         {
             var spec = new GenreSpecification(id);
             var genere = await _repository.GetEntityWithSpec(spec);
+            if (genere == null) return 0;
             return genere.Books.Count();
         }
 
@@ -63,13 +64,13 @@ namespace Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<GenreDto>> AddGenre(GenreDto dto)
+        public async Task<ActionResult<GenreToReturnDto>> AddGenre(String genreName)
         {
-            var genere = _mapper.Map<GenreDto, Genre>(dto);
+            var genere = new Genre { GenreName = genreName };
             var result = _repository.Add(genere);
             if (!(await _repository.SaveAsync()))
                 return BadRequest(new Error("Не удалось добавить жанр"));
-            return Ok(_mapper.Map<Genre, GenreDto>(result));
+            return Ok(_mapper.Map<Genre, GenreToReturnDto>(result));
         }
 
     }

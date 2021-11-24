@@ -1,6 +1,6 @@
 ﻿namespace Dto
 {
-    public class AuthorDto
+    public class AuthorToReturnDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; }

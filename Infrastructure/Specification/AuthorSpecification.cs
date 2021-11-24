@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Core;
+using Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,12 @@ namespace Infrastructure.Specification
 
         public AuthorSpecification(int id)
             : base(x => x.Id == id)
+        {
+            AddInclude(i => i.Books);
+        }
+
+        public AuthorSpecification(AuthorSpecParams specParams)
+            : base(x => x.Books.Count > 0)
         {
             AddInclude(i => i.Books);
         }

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Dto
 {
-    public class PersonWithBookDto : PersonDto
+    public class PersonToReturnWithBookDto : PersonToReturnDto
     {
-        public IEnumerable<BookDto> Books { get; set; }
+        public IEnumerable<BookToReturnDto> Books { get; set; }
     }
 }

@@ -52,7 +52,8 @@ namespace Infrastructure
             var addName = updateGenres
                 .Except(genres.Select(s => s.GenreName))
                 .FirstOrDefault();
-            genres.Add(await GetGenre(addName));
+            if(addName != null)
+                genres.Add(await GetGenre(addName));
             return genres;
         }
     }

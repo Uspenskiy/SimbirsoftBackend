@@ -13,8 +13,8 @@ namespace Dto
     public class LibraryCardDto
     {
         [Required(ErrorMessage = "Укажите человека взявшего книгу")]
-        public PersonDto Person { get; set; }
+        public PersonToReturnDto Person { get; set; }
         [Required(ErrorMessage = "Укажите взятую книгу")]
-        public BookDto Book { get; set; }
+        public BookToReturnDto Book { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using Core.Entities;
 using Core.Interfaces;
 using Core.QueryParams;
 using Dto;
-using Infrastructure.Data;
+//using Infrastructure.Data;
 using Infrastructure.Specification;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -51,11 +51,11 @@ namespace Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IEnumerable<BookDto>> GetBooks([FromQuery] BookSpecParams bookSpecParams)
+        public async Task<IEnumerable<BookToReturnDto>> GetBooks([FromQuery] BookSpecParams bookSpecParams)
         {
             var spec = new BookSpecificationAuthorTitleGenre(bookSpecParams);
             var books = await _bookRepository.ListAsync(spec);
-            return _mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(books);
+            return _mapper.Map<IEnumerable<Book>, IEnumerable<BookToReturnDto>>(books);
         }
 
         /// <summary>
@@ -64,11 +64,11 @@ namespace Api.Controllers
         /// <param name="AuthorId"></param>
         /// <returns></returns>
         [HttpGet("{AuthorId}")]
-        public async Task<ActionResult<IEnumerable<BookDto>>> GetBooksByAuthorId(int AuthorId)
+        public async Task<ActionResult<IEnumerable<BookToReturnDto>>> GetBooksByAuthorId(int AuthorId)
         {
             var spec = new BookSpecificationAuthorId(AuthorId);
             var books = await _bookRepository.ListAsync(spec);
-            return Ok(_mapper.Map<IEnumerable<Book>, IEnumerable<BookDto>>(books));
+            return Ok(_mapper.Map<IEnumerable<Book>, IEnumerable<BookToReturnDto>>(books));
         }
 
         /// <summary>
@@ -77,15 +77,13 @@ namespace Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<BookDto>> CreateBook(BookDto dto)
+        public async Task<ActionResult<BookToReturnDto>> CreateBook(BookToAddDto dto)
         {
-            var book = _mapper.Map<BookDto, Book>(dto);
-            book.Genres = (await _genreService.GetGenres(dto.Genres.Select(s => s.GenreName))).ToList();
-            book.Author = await _authorService.GetAuthor(dto.Author.FirstName, dto.Author.LastName, dto.Author.MiddleName);
+            var book = _mapper.Map<BookToAddDto, Book>(dto);
             var result = _bookRepository.Add(book);
             if (!(await _bookRepository.SaveAsync()))
                 return BadRequest(new Error("Не удалось создать книгу"));
-            return Ok(_mapper.Map<Book, BookDto>(result));
+            return Ok(_mapper.Map<Book, BookToReturnDto>(result));
         }
 
         /// <summary>
@@ -98,7 +96,7 @@ namespace Api.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<ActionResult<BookDto>> UpdateGenre(BookDto dto)
+        public async Task<ActionResult<BookToReturnDto>> UpdateGenre(BookToUpdateDto dto)
         {
             var spec = new BookSpecification(dto.Id);
             var book = await _bookRepository.GetEntityWithSpec(spec);
@@ -106,7 +104,7 @@ namespace Api.Controllers
             var result = _bookRepository.Update(book);
             if (!(await _bookRepository.SaveAsync()))
                 return BadRequest(new Error("Не удалось обновить жанры у книги"));
-            return Ok(_mapper.Map<Book, BookDto>(result));
+            return Ok(_mapper.Map<Book, BookToReturnDto>(result));
         }
 
         /// <summary>
