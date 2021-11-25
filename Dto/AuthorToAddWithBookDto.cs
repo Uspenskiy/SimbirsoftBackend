@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dto
 {
+    /// <summary>
+    /// Класс презентор для добавления автора + книг
+    /// </summary>
     public class AuthorToAddWithBookDto
     {
         public string FirstName { get; set; }

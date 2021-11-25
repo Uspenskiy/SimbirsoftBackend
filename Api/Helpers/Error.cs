@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Api.Helpers
 {
+    /// <summary>
+    /// Класс для возврата сообшений об ошибке
+    /// </summary>
     public class Error
     {
         public Error(string message)

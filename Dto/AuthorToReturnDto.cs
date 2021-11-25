@@ -1,5 +1,8 @@
 ﻿namespace Dto
 {
+    /// <summary>
+    /// Класс презентор для возврата автора
+    /// </summary>
     public class AuthorToReturnDto
     {
         public int Id { get; set; }

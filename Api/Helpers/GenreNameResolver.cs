@@ -7,6 +7,9 @@ using System.Collections.Generic;
 
 namespace Api.Helpers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class GenreNameResolver : IValueResolver<BookToAddDto, Book, List<Genre>>
     {
         private readonly IGenericRepository<Genre> _genreRepository;

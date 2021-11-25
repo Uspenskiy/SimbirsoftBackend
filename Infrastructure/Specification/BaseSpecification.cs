@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Specification
 {
+    /// <summary>
+    /// Базоваый класс для спецификаций
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class BaseSpecification<T> : ISpecification<T>
     {
         public BaseSpecification()
@@ -26,6 +30,8 @@ namespace Infrastructure.Specification
 
         public List<Expression<Func<T, object>>> OrderBy { get; private set; }
 
+        public List<Expression<Func<T, object>>> OrderByDescending { get; private set; }
+
         public List<Expression<Func<T, object>>> Includes { get; private set; }
 
         public List<string> IncludeStrings { get; private set; }
@@ -35,6 +41,13 @@ namespace Infrastructure.Specification
             if (OrderBy == null)
                 OrderBy = new List<Expression<Func<T, object>>>();
             OrderBy.Add(orderBy);
+        }
+
+        protected void AddOrderByDescending(Expression<Func<T, object>> orderBy)
+        {
+            if (OrderByDescending == null)
+                OrderByDescending = new List<Expression<Func<T, object>>>();
+            OrderByDescending.Add(orderBy);
         }
 
         protected void AddInclude(Expression<Func<T, object>> includeExpression)

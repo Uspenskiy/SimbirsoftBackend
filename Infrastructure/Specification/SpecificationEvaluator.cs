@@ -33,6 +33,16 @@ namespace Infrastructure.Specification
                 }
                 query = orderQuery;
             }
+            if (spec.OrderByDescending != null)
+            {
+                var orderQuery = query.OrderByDescending(spec.OrderBy.First());
+                if (spec.OrderByDescending.Count > 1)
+                {
+                    foreach (var thenBy in spec.OrderByDescending.Skip(1))
+                        orderQuery = orderQuery.ThenBy(thenBy);
+                }
+                query = orderQuery;
+            }
             if (spec.Includes != null)
             {
                 query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));

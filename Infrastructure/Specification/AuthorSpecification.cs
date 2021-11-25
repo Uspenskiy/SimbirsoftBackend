@@ -1,5 +1,5 @@
-﻿using Core;
-using Core.Entities;
+﻿using Core.Entities;
+using Core.QueryParams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,9 +25,28 @@ namespace Infrastructure.Specification
         }
 
         public AuthorSpecification(AuthorSpecParams specParams)
-            : base(x => x.Books.Count > 0)
         {
             AddInclude(i => i.Books);
+            if (specParams != null)
+            {
+                if(specParams.Date != null)
+                    AddWhere(w => w.Books.FirstOrDefault(b => b.DateCreate.Year == specParams.Date.Year) != null);
+                if(specParams.IsOrder)
+                {
+                    if(specParams.IsOrderByDescending)
+                    {
+                        AddOrderByDescending(o => o.FirstName);
+                        AddOrderByDescending(o => o.LastName);
+                        AddOrderByDescending(o => o.MiddleName);
+                    }
+                    else
+                    {
+                        AddOrderBy(o => o.FirstName);
+                        AddOrderBy(o => o.LastName);
+                        AddOrderBy(o => o.MiddleName);
+                    }
+                }
+            }
         }
     }
 }

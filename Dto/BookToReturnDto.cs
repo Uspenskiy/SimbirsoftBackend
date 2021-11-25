@@ -9,6 +9,7 @@ namespace Dto
 {
     /// <summary>
     /// 1.2.2 - Класс презентор Book
+    /// Класс презентор для возврата книги
     /// </summary>
     public class BookToReturnDto
     {

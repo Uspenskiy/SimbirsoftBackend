@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dto
 {
+    /// <summary>
+    /// Класс презентор для обнавления книги
+    /// </summary>
     public class BookToUpdateDto
     {
         public int Id { get; set; }

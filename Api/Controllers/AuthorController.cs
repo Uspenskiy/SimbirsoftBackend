@@ -1,8 +1,8 @@
 ﻿using Api.Helpers;
 using AutoMapper;
-using Core;
 using Core.Entities;
 using Core.Interfaces;
+using Core.QueryParams;
 using Dto;
 using Infrastructure.Specification;
 using Microsoft.AspNetCore.Mvc;

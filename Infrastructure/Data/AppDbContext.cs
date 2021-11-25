@@ -21,6 +21,11 @@ namespace Infrastructure.Data
         //public virtual DbSet<LibraryCard> LibraryCards { get; set; }
         public virtual DbSet<Person> People { get; set; }
 
+        /// <summary>
+        /// 2.3 - Реализовать все связи между таблицами, которые присутствуют в схеме. 
+        /// (использовать при этом только fluentAPI)
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "Russian_Russia.1251");

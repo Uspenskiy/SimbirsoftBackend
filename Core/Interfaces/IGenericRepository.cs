@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
+    /// <summary>
+    /// 2.6 - Реализовать репозитории под все сущности кроме референсных (ManyToMany)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IGenericRepository<T> where T : BaseEntity
     {
         Task<T> GetByIdAsync(int id);

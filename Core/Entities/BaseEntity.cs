@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
+    /// <summary>
+    /// 2.2 -Базова сущность
+    /// </summary>
     public class BaseEntity
     {
         public int Id { get; set; }

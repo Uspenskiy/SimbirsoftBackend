@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dto
 {
+    /// <summary>
+    /// Класс презентер для добавления пользователя
+    /// </summary>
     public class PersonToAddDto
     {
         public DateTimeOffset? BirthDate { get; set; }

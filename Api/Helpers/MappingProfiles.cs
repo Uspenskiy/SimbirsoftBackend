@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Api.Helpers
 {
+    /// <summary>
+    /// Описывает правила проекции сущностей и dto
+    /// </summary>
     public class MappingProfiles : Profile
     {
         public MappingProfiles()

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dto
 {
+    /// <summary>
+    /// Класс презентер для обновления пользователя
+    /// </summary>
     public class PersonToUpdateDto
     {
         public int Id { get; set; }

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Core.Entities
 {
+    /// <summary>
+    /// 2.2 - Сущность отвечающая за связь книги и пользователя
+    /// </summary>
     public partial class LibraryCard
     {
         public int BookId { get; set; }

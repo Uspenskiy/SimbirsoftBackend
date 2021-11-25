@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Core.Entities
 {
+    /// <summary>
+    /// 2.2 -Сущность отвечающая за автора
+    /// </summary>
     public partial class Author : BaseTimeEntity
     {
         public Author()

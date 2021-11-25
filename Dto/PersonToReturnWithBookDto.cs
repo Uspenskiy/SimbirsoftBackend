@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dto
 {
+    /// <summary>
+    /// Класс презентер для возврата пользователя с книгами
+    /// </summary>
     public class PersonToReturnWithBookDto : PersonToReturnDto
     {
         public IEnumerable<BookToReturnDto> Books { get; set; }
