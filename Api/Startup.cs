@@ -6,11 +6,13 @@ using Api.Helpers;
 using Api.Middlewares;
 using Core.Entities;
 using Core.Interfaces;
-using Infrastructure.Mock;
+using Infrastructure;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,9 +33,11 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IGenericRepository<Human>, MockHumanRepository>();
-            services.AddTransient<IGenericRepository<Book>, MockBookRepository>();
-            services.AddTransient<IGenericRepository<LibraryCard>, MockLibraryCardRepository>();
+            services.AddDbContext<AppDbContext>(options => 
+             options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
+            services.AddScoped<IGenreService, GenreService>();
+            services.AddScoped<IAuthorService, AuthorService>();
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -58,7 +62,8 @@ namespace Api
 
             app.UseRouting();
 
-            //app.UseMiddleware<BasicAuthorizationMiddleware>();
+            if(Configuration.GetSection("BasicAuthorization").Get<bool>())
+                app.UseMiddleware<BasicAuthorizationMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

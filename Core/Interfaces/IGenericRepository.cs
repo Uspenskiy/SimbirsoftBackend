@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,13 +7,19 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IGenericRepository<T>
+    /// <summary>
+    /// 2.6 - Реализовать репозитории под все сущности кроме референсных (ManyToMany)
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IGenericRepository<T> where T : BaseEntity
     {
         Task<T> GetByIdAsync(int id);
         Task<T> GetEntityWithSpec(ISpecification<T> spec);
         Task<IReadOnlyList<T>> ListAllAsync();
         Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
-        Task<T> AddAsync(T entity);
-        Task DeleteAsync(T entity);
+        T Add(T entity);
+        T Update(T entity);
+        void Delete(T entity);
+        Task<Boolean> SaveAsync();
     }
 }

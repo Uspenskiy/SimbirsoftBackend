@@ -8,18 +8,34 @@ using System.Threading.Tasks;
 
 namespace Api.Helpers
 {
+    /// <summary>
+    /// Описывает правила проекции сущностей и dto
+    /// </summary>
     public class MappingProfiles : Profile
     {
         public MappingProfiles()
         {
-            CreateMap<Book, BookDto>();
-            CreateMap<BookDto, Book>();
+            CreateMap<Author, AuthorToReturnDto>();
 
-            CreateMap<Human, HumanDto>();
-            CreateMap<HumanDto, Human>();
+            CreateMap<AuthorToAddWithBookDto, Author>()
+                .ForMember(d => d.Books, o => o.MapFrom<BookNameResolver>());
 
-            CreateMap<LibraryCard, LibraryCardDto>();
-            CreateMap<LibraryCardDto, LibraryCard>();
+            CreateMap<Author, AuthorToReturnWithBookDto>();
+
+            CreateMap<Book, BookToReturnDto>();
+
+            CreateMap<BookToAddDto, Book>()
+                .ForMember(d => d.Genres, o => o.MapFrom<GenreNameResolver>());
+
+            CreateMap<Genre, GenreToReturnDto>();
+            CreateMap<GenreToAddDto, Genre>();
+            CreateMap<GenreToUpdateDto, Genre>();
+
+            CreateMap<Person, PersonToReturnDto>();
+            CreateMap<PersonToAddDto, Person>();
+            CreateMap<PersonToUpdateDto, Person>();
+
+            CreateMap<Person, PersonToReturnWithBookDto>();
         }
     }
 }

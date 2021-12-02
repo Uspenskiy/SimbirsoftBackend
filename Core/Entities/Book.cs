@@ -1,19 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Entities
 {
     /// <summary>
-    /// 1.2.2 - Класс книги
+    /// 2.2 -Сущность отвечающая за книгу
     /// </summary>
-    public class Book
+    public partial class Book : BaseTimeEntity
     {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Genre { get; set; }
-        public Human Author { get; set; }
+        public Book()
+        {
+            Genres = new List<Genre>();
+            People = new List<Person>();
+        }
+
+        public string Name { get; set; }
+        public int? AuthorId { get; set; }
+        public virtual Author Author { get; set; }
+        public List<Genre> Genres { get; set; }
+        public List<Person> People { get; set; }
+        public List<BookGenre> BookGenres { get; set; }
+        public List<LibraryCard> LibraryCards { get; set; }
+        /// <summary>
+        /// 2.8.1.	Расширить модель книги и добавить туда дату написания этой книги
+        /// </summary>
+        public DateTimeOffset DateCreate { get; set; }
     }
 }

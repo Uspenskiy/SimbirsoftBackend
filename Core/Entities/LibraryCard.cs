@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.Entities
 {
     /// <summary>
-    /// 1.2.1*.1 - сущность-агрегатор (LibraryCard): человек, взявший для прочтения книгу
+    /// 2.2 - Сущность отвечающая за связь книги и пользователя
     /// </summary>
-    public class LibraryCard
+    public partial class LibraryCard
     {
-        public int Id { get; set; }
-        public Human Person { get; set; }
-        public Book Book { get; set; }
-        public DateTimeOffset DateTimeCreate { get; set; }
+        public int BookId { get; set; }
+        public int PersonId { get; set; }
+        public virtual Book Book { get; set; }
+        public virtual Person Person { get; set; }
     }
 }

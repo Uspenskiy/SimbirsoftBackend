@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Specification
 {
-    public class HumanSpecificationAuthors : BaseSpecification<Human>
+    public class HumanSpecificationAuthors : BaseSpecification<Person>
     {
         public HumanSpecificationAuthors()
         {

@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Specification
 {
+    /// <summary>
+    /// Базоваый класс для спецификаций
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class BaseSpecification<T> : ISpecification<T>
     {
         public BaseSpecification()
@@ -15,20 +19,56 @@ namespace Infrastructure.Specification
 
         }
         
-        public BaseSpecification(Func<T, bool> criteria)
+        public BaseSpecification(Expression<Func<T, bool>> criteria)
         {
-            Criteria = criteria;
+            if (Criteriaes == null)
+                Criteriaes = new List<Expression<Func<T, bool>>>();
+            Criteriaes.Add(criteria);
         }
 
-        public Func<T, bool> Criteria { get; private set; }
+        public List<Expression<Func<T, bool>>> Criteriaes { get; private set; }
 
-        public List<Func<T, object>> OrderBy { get; private set; }
+        public List<Expression<Func<T, object>>> OrderBy { get; private set; }
 
-        protected void AddOrderBy(Func<T, object> orderBy)
+        public List<Expression<Func<T, object>>> OrderByDescending { get; private set; }
+
+        public List<Expression<Func<T, object>>> Includes { get; private set; }
+
+        public List<string> IncludeStrings { get; private set; }
+
+        protected void AddOrderBy(Expression<Func<T, object>> orderBy)
         {
             if (OrderBy == null)
-                OrderBy = new List<Func<T, object>>();
+                OrderBy = new List<Expression<Func<T, object>>>();
             OrderBy.Add(orderBy);
+        }
+
+        protected void AddOrderByDescending(Expression<Func<T, object>> orderBy)
+        {
+            if (OrderByDescending == null)
+                OrderByDescending = new List<Expression<Func<T, object>>>();
+            OrderByDescending.Add(orderBy);
+        }
+
+        protected void AddInclude(Expression<Func<T, object>> includeExpression)
+        {
+            if (Includes == null)
+                Includes = new List<Expression<Func<T, object>>>();
+            Includes.Add(includeExpression);
+        }
+
+        protected void AddInclude(string includeExpression)
+        {
+            if (IncludeStrings == null)
+                IncludeStrings = new List<string>();
+            IncludeStrings.Add(includeExpression);
+        }
+
+        protected void AddWhere(Expression<Func<T, bool>> criteria)
+        {
+            if (Criteriaes == null)
+                Criteriaes = new List<Expression<Func<T, bool>>>();
+            Criteriaes.Add(criteria);
         }
     }
 }

@@ -9,17 +9,18 @@ namespace Dto
 {
     /// <summary>
     /// 1.2.1 - Класс презентор Human
+    /// Класс презентер для возврата пользователя
     /// </summary>
-    public class HumanDto
+    public class PersonToReturnDto
     {
         public int Id { get; set; }
-        [Required(ErrorMessage = "Укажите имя человека")]
+
         public string Name { get; set; }
-        [Required(ErrorMessage = "Укажите фамилию человека")]
+
         public string Surname { get; set; }
-        [Required(ErrorMessage = "Укажите отчество человека")]
+
         public string Patronymic { get; set; }
-        [Required(ErrorMessage = "Укажите дату рождения человека")]
+
         public DateTimeOffset Birthday { get; set; }
     }
 }
