@@ -9,14 +9,11 @@ namespace Api.Helpers
 {
     public class BookNameResolver : IValueResolver<AuthorToAddWithBookDto, Author, List<Book>>
     {
-        private readonly IGenericRepository<Book> _bookRepository;
-        private readonly IGenericRepository<Genre> _genreRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public BookNameResolver(IGenericRepository<Book> bookRepository,
-            IGenericRepository<Genre> genreRepository)
+        public BookNameResolver(IUnitOfWork unitOfWork)
         {
-            _bookRepository = bookRepository;
-            _genreRepository = genreRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public List<Book> Resolve(AuthorToAddWithBookDto source, Author destination, List<Book> destMember, ResolutionContext context)
@@ -28,17 +25,17 @@ namespace Api.Helpers
                 foreach (var genre in book.Genres)
                 {
                     var spec = new GenreSpecification(genre.GenreName);
-                    var entity = _genreRepository.GetEntityWithSpec(spec).Result;
+                    var entity = _unitOfWork.Repository<Genre>().GetEntityWithSpec(spec).Result;
                     if (entity == null)
                     {
-                        entity = _genreRepository.Add(new Genre { GenreName = genre.GenreName });
-                        _genreRepository.SaveAsync().Wait();
+                        entity = _unitOfWork.Repository<Genre>().Add(new Genre { GenreName = genre.GenreName });
+                        _unitOfWork.SaveAsync().Wait();
                     }
                     genres.Add(entity);
                 }
-                books.Add(_bookRepository.Add(new Book { Genres = genres, Name = book.Name }));
+                books.Add(_unitOfWork.Repository<Book>().Add(new Book { Genres = genres, Name = book.Name }));
             }
-            _bookRepository.SaveAsync().Wait();
+            _unitOfWork.SaveAsync().Wait();
             return books;
         }
     }

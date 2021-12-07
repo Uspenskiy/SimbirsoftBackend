@@ -12,11 +12,11 @@ namespace Api.Helpers
     /// </summary>
     public class GenreNameResolver : IValueResolver<BookToAddDto, Book, List<Genre>>
     {
-        private readonly IGenericRepository<Genre> _genreRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GenreNameResolver(IGenericRepository<Genre> genreRepository)
+        public GenreNameResolver(IUnitOfWork unitOfWork)
         {
-            _genreRepository = genreRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public List<Genre> Resolve(BookToAddDto source, Book destination, List<Genre> destMember, ResolutionContext context)
@@ -25,11 +25,11 @@ namespace Api.Helpers
             foreach (var genre in source.Genres)
             {
                 var spec = new GenreSpecification(genre.GenreName);
-                var entity = _genreRepository.GetEntityWithSpec(spec).Result;
+                var entity = _unitOfWork.Repository<Genre>().GetEntityWithSpec(spec).Result;
                 if (entity == null)
                 {
-                    entity = _genreRepository.Add(new Genre { GenreName = genre.GenreName });
-                    _genreRepository.SaveAsync().Wait();
+                    entity = _unitOfWork.Repository<Genre>().Add(new Genre { GenreName = genre.GenreName });
+                    _unitOfWork.SaveAsync().Wait();
                 }
                 genres.Add(entity);
             }

@@ -6,7 +6,7 @@ namespace Core.Entities
     /// <summary>
     /// 2.2 -Сущность отвечающая за книгу
     /// </summary>
-    public partial class Book : BaseTimeEntity
+    public partial class Book : BaseEntity
     {
         public Book()
         {

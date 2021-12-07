@@ -6,7 +6,7 @@ namespace Core.Entities
     /// <summary>
     /// 2.2 -Сущность отвечающая за жанр
     /// </summary>
-    public partial class Genre : BaseTimeEntity
+    public partial class Genre : BaseEntity
     {
         public Genre()
         {

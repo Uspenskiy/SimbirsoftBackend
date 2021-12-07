@@ -6,7 +6,7 @@ namespace Core.Entities
     /// <summary>
     /// 2.2 -Сущность отвечающая за пользователя
     /// </summary>
-    public partial class Person : BaseTimeEntity
+    public partial class Person : BaseEntity
     {
         public Person()
         {

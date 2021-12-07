@@ -24,21 +24,15 @@ namespace Api.Controllers
     {
         private readonly ILogger<PersonController> _logger;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<Person> _personRepository;
-        private readonly IGenericRepository<Book> _bookRepository;
-        private readonly IGenericRepository<Author> _authorRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public PersonController(ILogger<PersonController> logger,
-            IMapper mapper, 
-            IGenericRepository<Person> personRepository,
-            IGenericRepository<Book> bookRepository,
-            IGenericRepository<Author> authorRepository)
+            IMapper mapper,
+            IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _mapper = mapper;
-            _personRepository = personRepository;
-            _bookRepository = bookRepository;
-            _authorRepository = authorRepository;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -51,7 +45,7 @@ namespace Api.Controllers
         public async Task<IEnumerable<PersonToReturnDto>> GetPersons([FromQuery] string searchParams)
         {
             var spec = new PersonSpecificationNameSearch(searchParams);
-            var person = await _personRepository.ListAsync(spec);
+            var person = await _unitOfWork.Repository<Person>().ListAsync(spec);
             return _mapper.Map<IEnumerable<Person>, IEnumerable<PersonToReturnDto>>(person);
         }
 
@@ -65,7 +59,7 @@ namespace Api.Controllers
         public async Task<ActionResult<IEnumerable<BookToReturnDto>>> GetTakenBook(int id)
         {
             var spec = new PersonSpecificationTakenBook(id);
-            var person = await _personRepository.GetEntityWithSpec(spec);
+            var person = await _unitOfWork.Repository<Person>().GetEntityWithSpec(spec);
             if (person == null) return NotFound(new Error("Не удалось найти пользователя"));
             return Ok(_mapper.Map<IEnumerable<Book>, IEnumerable<BookToReturnDto>>(person.Books));
         }
@@ -77,7 +71,7 @@ namespace Api.Controllers
         [HttpGet("authors")]
         public async Task<IEnumerable<AuthorToReturnDto>> GetAuthors()
         {
-            var authors = await _authorRepository.ListAllAsync();
+            var authors = await _unitOfWork.Repository<Author>().ListAllAsync();
             return _mapper.Map<IEnumerable<Author>, IEnumerable<AuthorToReturnDto>>(authors);
         }
 
@@ -90,8 +84,8 @@ namespace Api.Controllers
         public async Task<ActionResult<PersonToReturnDto>> CreatePerson(PersonToAddDto dto)
         {
             var person = _mapper.Map<PersonToAddDto, Person>(dto);
-            var entity = _personRepository.Add(person);
-            if (!(await _personRepository.SaveAsync()))
+            var entity = _unitOfWork.Repository<Person>().Add(person);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось создать пользователя"));
             return _mapper.Map<Person, PersonToReturnDto>(entity);
         }
@@ -106,11 +100,11 @@ namespace Api.Controllers
         public async Task<ActionResult<PersonToReturnWithBookDto>> TakeBook(LibraryCardDto dto)
         {
             var spec = new PersonSpecificationTakenBook(dto.Person.Id);
-            var person = await _personRepository.GetEntityWithSpec(spec);
-            var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
+            var person = await _unitOfWork.Repository<Person>().GetEntityWithSpec(spec);
+            var book = await _unitOfWork.Repository<Book>().GetByIdAsync(dto.Book.Id);
             person.Books.Add(book);
-            _personRepository.Update(person);
-            if (!(await _personRepository.SaveAsync()))
+            _unitOfWork.Repository<Person>().Update(person);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось взять книгу"));
             return Ok(_mapper.Map<Person, PersonToReturnWithBookDto>(person));
         }
@@ -125,11 +119,11 @@ namespace Api.Controllers
         public async Task<ActionResult<PersonToReturnWithBookDto>> ReturnBook(LibraryCardDto dto)
         {
             var spec = new PersonSpecificationTakenBook(dto.Person.Id);
-            var person = await _personRepository.GetEntityWithSpec(spec);
-            var book = await _bookRepository.GetByIdAsync(dto.Book.Id);
+            var person = await _unitOfWork.Repository<Person>().GetEntityWithSpec(spec);
+            var book = await _unitOfWork.Repository<Book>().GetByIdAsync(dto.Book.Id);
             person.Books.Remove(book);
-            _personRepository.Update(person);
-            if (!(await _personRepository.SaveAsync()))
+            _unitOfWork.Repository<Person>().Update(person);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось взять книгу"));
             return Ok(_mapper.Map<Person, PersonToReturnWithBookDto>(person));
         }
@@ -142,12 +136,12 @@ namespace Api.Controllers
         [HttpPut]
         public async Task<ActionResult<PersonToReturnDto>> UpdatePerson(PersonToUpdateDto dto)
         {
-            var person = await _personRepository.GetByIdAsync(dto.Id);
+            var person = await _unitOfWork.Repository<Person>().GetByIdAsync(dto.Id);
             if (person == null) 
                 return NotFound(new Error("Пользователь отсутсвует"));
             _mapper.Map(dto, person);
-            var entity = _personRepository.Update(person);
-            if (!(await _personRepository.SaveAsync()))
+            var entity = _unitOfWork.Repository<Person>().Update(person);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось обновить пользователя"));
             return _mapper.Map<Person, PersonToReturnDto>(entity);
         }
@@ -160,11 +154,11 @@ namespace Api.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePerson(int id)
         {
-            var person = await _personRepository.GetByIdAsync(id);
+            var person = await _unitOfWork.Repository<Person>().GetByIdAsync(id);
             if (person == null)
                 return NotFound(new Error("Пользователь отсутсвует"));
-            _personRepository.Delete(person);
-            if (!(await _personRepository.SaveAsync()))
+            _unitOfWork.Repository<Person>().Delete(person);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось удалить пользователя"));
             return Ok();
         }
@@ -180,13 +174,13 @@ namespace Api.Controllers
         public async Task<ActionResult> DeletePersonByName([FromQuery] DeletePersonSpecParams deletePersonSpecParams)
         {
             var spec = new PersonSpecificationNameSearch(deletePersonSpecParams);
-            var people = await _personRepository.ListAsync(spec);
+            var people = await _unitOfWork.Repository<Person>().ListAsync(spec);
             if (people == null) return NotFound(new Error("Пользователь отсутсвует"));
             foreach (var person in people)
             {
-                _personRepository.Delete(person);
+                _unitOfWork.Repository<Person>().Delete(person);
             }
-            if (!(await _personRepository.SaveAsync()))
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось удалить пользователя"));
             return Ok();
         }

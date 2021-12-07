@@ -7,10 +7,19 @@ using System.Threading.Tasks;
 namespace Core.Entities
 {
     /// <summary>
-    /// 2.2 -Базова сущность
+    /// 9.1.	Расширить все сущности, кроме референсных дополнительными полями
+    /// 9.1.1.	Дата и время + таймзона вставки записи.
+    /// 9.1.2.	Дата и время + таймзона изменения записи.
+    /// 9.1.3.	Версия записи.
     /// </summary>
     public class BaseEntity
     {
         public int Id { get; set; }
+
+        public DateTimeOffset CreateEntityTime { get; set; }
+
+        public DateTimeOffset UpdateEntityTime { get; set; }
+
+        public int Version { get; set; }
     }
 }
