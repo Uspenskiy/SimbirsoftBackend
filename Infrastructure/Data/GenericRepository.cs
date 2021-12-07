@@ -48,6 +48,7 @@ namespace Infrastructure.Data
         {
             entity.CreateEntityTime = DateTimeOffset.Now;
             entity.UpdateEntityTime = DateTimeOffset.Now;
+            entity.Version = 1;
             EntityEntry<T> addEntiry = _context.Set<T>().Add(entity);
             return addEntiry.Entity;
         }
@@ -55,6 +56,7 @@ namespace Infrastructure.Data
         public T Update(T entity)
         {
             entity.UpdateEntityTime = DateTimeOffset.Now;
+            entity.Version++;
             EntityEntry<T> addEntiry = _context.Set<T>().Add(entity);
             _context.Entry(entity).State = EntityState.Modified;
             return addEntiry.Entity;
