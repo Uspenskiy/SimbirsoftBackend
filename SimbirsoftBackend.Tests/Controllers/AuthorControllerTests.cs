@@ -1,6 +1,8 @@
 ﻿using Api.Controllers;
 using Api.Helpers;
 using AutoMapper;
+using Core.Interfaces;
+using Infrastructure.Data;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
@@ -12,25 +14,28 @@ using Xunit;
 
 namespace SimbirsoftBackend.Tests.Controllers
 {
-    public class AuthorControllerTests
+    public class AuthorControllerTests : BaseControllerTests
     {
-        private static IMapper _mapper;
+
+        private static ILogger<AuthorController> _logger;
 
         public AuthorControllerTests()
         {
-            if(_mapper == null)
+            if(_logger == null)
             {
-                var mappingConfig = new MapperConfiguration(c => 
-                {
-                    c.AddProfile(new MappingProfiles());
-                });
-                _mapper = mappingConfig.CreateMapper();
+                var mock = new Mock<ILogger<AuthorController>>();
+                _logger = mock.Object;
             }
         }
 
         [Fact]
-        public void GetAuthor_WithNullSpecFromQuery()
+        public async Task GetAuthor_WithNullSpecFromQuery_ShouldReturn_1()
         {
+            //var mockUnitOfWork = new Mock<IUnitOfWork>();
+
+            //var unitOfWork = new UnitOfWork();
+            //var controller = new AuthorController(_logger, _mapper, mockUnitOfWork.Object, mockBookService.Object);
+            //var result = await controller.GetAuthor(null);
 
         }
     }

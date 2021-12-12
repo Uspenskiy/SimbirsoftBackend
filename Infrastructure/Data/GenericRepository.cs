@@ -24,6 +24,10 @@ namespace Infrastructure.Data
             _context = context;
         }
 
+        public GenericRepository()
+        {
+        }
+
         public async Task<T> GetByIdAsync(int id)
         {
             return await _context.Set<T>().FindAsync(id);
