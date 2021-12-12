@@ -77,6 +77,7 @@ namespace Api.Controllers
         public async Task<ActionResult<BookToReturnDto>> CreateBook(BookToAddDto dto)
         {
             var book = _mapper.Map<BookToAddDto, Book>(dto);
+            book.Genres = (await _genreService.GetGenres(book.Genres)).ToList();
             var result = _unitOfWork.Repository<Book>().Add(book);
             if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось создать книгу"));

@@ -24,14 +24,17 @@ namespace Api.Controllers
         private readonly ILogger<AuthorController> _logger;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IBookService _bookService;
 
         public AuthorController(ILogger<AuthorController> logger,
             IMapper mapper,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IBookService bookService)
         {
             _logger = logger;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _bookService = bookService;
         }
 
         /// <summary>
@@ -91,6 +94,7 @@ namespace Api.Controllers
         public async Task<ActionResult<AuthorToReturnWithBookDto>> AddAuthor(AuthorToAddWithBookDto dto)
         {
             var author = _mapper.Map<AuthorToAddWithBookDto, Author>(dto);
+            author.Books = (await _bookService.ResolveBookGenres(author.Books)).ToList();
             var addAuthor = _unitOfWork.Repository<Author>().Add(author);
             if (!(await _unitOfWork.SaveAsync())) return BadRequest(new Error("Не удалось добавить автора"));
             return Ok(_mapper.Map<Author, AuthorToReturnWithBookDto>(addAuthor));

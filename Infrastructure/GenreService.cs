@@ -37,6 +37,13 @@ namespace Infrastructure
             await _unitOfWork.SaveAsync();
             return await GetGenre(name);
         }
+        public async Task<IEnumerable<Genre>> GetGenres(IEnumerable<Genre> genres)
+        {
+            var result = new List<Genre>();
+            foreach (var genre in genres)
+                result.Add(await GetGenre(genre.GenreName));
+            return result;
+        }
 
         public async Task<IEnumerable<Genre>> UpdateGenres(List<Genre> genres, IEnumerable<string> updateGenres)
         {
