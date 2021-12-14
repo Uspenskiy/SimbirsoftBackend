@@ -16,7 +16,7 @@ namespace SimbirsoftBackend.Tests.Helpers
             var builder = new DbContextOptionsBuilder<AppDbContext>();
             builder.UseInMemoryDatabase("Testings");
             Context = new AppDbContext(builder.Options);
-            Context.Authors.Add(new Author());
+            Context.Authors.AddRange(AuthorHelper.GetMany());
             Context.SaveChanges();
         }
 

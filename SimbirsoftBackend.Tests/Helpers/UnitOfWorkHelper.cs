@@ -16,8 +16,8 @@ namespace SimbirsoftBackend.Tests.Helpers
         {
             var context = new DbContextHelper().Context;
             var unitOfWork = new Mock<IUnitOfWork>();
-            unitOfWork.Setup(s => s.Repository<BaseEntity>())
-                .Returns(new GenericRepository<BaseEntity>(context));
+            unitOfWork.Setup(s => s.Repository<Author>())
+                .Returns(new GenericRepository<Author>(context));
             return unitOfWork;
         }
     }
