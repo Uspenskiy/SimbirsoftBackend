@@ -81,7 +81,10 @@ namespace Api.Controllers
         {
             var spec = new BookSpecification(searchString);
             var books = await _unitOfWork.Repository<Book>().ListAsync(spec);
-            var authors = books.Select(s => s.Author);
+            var authors = books
+                .Select(s => s.Author)
+                .GroupBy(x => x.Id)
+                .Select(s => s.FirstOrDefault());
             return Ok(_mapper.Map<IEnumerable<Author>, IEnumerable<AuthorToReturnDto>>(authors));
         }
 
