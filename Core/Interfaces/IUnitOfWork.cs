@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Core.Interfaces
 {
-    public interface IAuthorService
+    public interface IUnitOfWork : IDisposable
     {
-        Task<Author> GetAuthor(string name, string lastName, string middlename);
+        IGenericRepository<T> Repository<T>() where T : BaseEntity;
+        Task<bool> SaveAsync();
     }
 }

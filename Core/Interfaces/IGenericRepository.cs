@@ -20,6 +20,5 @@ namespace Core.Interfaces
         T Add(T entity);
         T Update(T entity);
         void Delete(T entity);
-        Task<Boolean> SaveAsync();
     }
 }

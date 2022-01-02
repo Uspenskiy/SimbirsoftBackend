@@ -23,18 +23,18 @@ namespace Api.Controllers
     {
         private readonly ILogger<AuthorController> _logger;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<Author> _authotRepository;
-        private readonly IGenericRepository<Book> _bookRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBookService _bookService;
 
         public AuthorController(ILogger<AuthorController> logger,
             IMapper mapper,
-            IGenericRepository<Author> authotRepository,
-            IGenericRepository<Book> bookRepository)
+            IUnitOfWork unitOfWork,
+            IBookService bookService)
         {
             _logger = logger;
             _mapper = mapper;
-            _authotRepository = authotRepository;
-            _bookRepository = bookRepository;
+            _unitOfWork = unitOfWork;
+            _bookService = bookService;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Api.Controllers
         public async Task<IEnumerable<AuthorToReturnDto>> GetAuthor([FromQuery] AuthorSpecParams specParams)
         {
             var spec = new AuthorSpecification(specParams);
-            var authors = await _authotRepository.ListAsync(spec);
+            var authors = await _unitOfWork.Repository<Author>().ListAsync(spec);
             return _mapper.Map<IEnumerable<Author>, IEnumerable<AuthorToReturnDto>>(authors);
         }
 
@@ -63,7 +63,7 @@ namespace Api.Controllers
         public async Task<ActionResult<IEnumerable<BookToReturnDto>>> GetBooks(int id)
         {
             var spec = new AuthorSpecification(id);
-            var author = await _authotRepository.GetEntityWithSpec(spec);
+            var author = await _unitOfWork.Repository<Author>().GetEntityWithSpec(spec);
             if (author == null) return NotFound(new Error("Автор не найден"));
             var result = _mapper.Map<IEnumerable<Book>, IEnumerable<BookToReturnDto>>(author.Books);
             return Ok(result);
@@ -80,8 +80,11 @@ namespace Api.Controllers
         public async Task<ActionResult<IEnumerable<AuthorToReturnDto>>> GetBooks(string searchString)
         {
             var spec = new BookSpecification(searchString);
-            var books = await _bookRepository.ListAsync(spec);
-            var authors = books.Select(s => s.Author);
+            var books = await _unitOfWork.Repository<Book>().ListAsync(spec);
+            var authors = books
+                .Select(s => s.Author)
+                .GroupBy(x => x.Id)
+                .Select(s => s.FirstOrDefault());
             return Ok(_mapper.Map<IEnumerable<Author>, IEnumerable<AuthorToReturnDto>>(authors));
         }
 
@@ -94,11 +97,10 @@ namespace Api.Controllers
         public async Task<ActionResult<AuthorToReturnWithBookDto>> AddAuthor(AuthorToAddWithBookDto dto)
         {
             var author = _mapper.Map<AuthorToAddWithBookDto, Author>(dto);
-            var addAuthor = _authotRepository.Add(author);
-            if (!(await _authotRepository.SaveAsync()))
-                return BadRequest(new Error("Не удалось добавить автора"));
-            var result = _mapper.Map<Author, AuthorToReturnWithBookDto>(addAuthor);
-            return Ok(result);
+            author.Books = (await _bookService.ResolveBookGenres(author.Books)).ToList();
+            var addAuthor = _unitOfWork.Repository<Author>().Add(author);
+            if (!(await _unitOfWork.SaveAsync())) return BadRequest(new Error("Не удалось добавить автора"));
+            return Ok(_mapper.Map<Author, AuthorToReturnWithBookDto>(addAuthor));
         }
 
         /// <summary>
@@ -111,11 +113,11 @@ namespace Api.Controllers
         public async Task<ActionResult> DeleteAuthor(int id)
         {
             var spec = new AuthorSpecification(id);
-            var author = await _authotRepository.GetEntityWithSpec(spec);
+            var author = await _unitOfWork.Repository<Author>().GetEntityWithSpec(spec);
             if (author.Books.Count != 0)
                 return BadRequest(new Error("Не возможно удалита автора, у автора есть книги в базе"));
-            _authotRepository.Delete(author);
-            if (!(await _authotRepository.SaveAsync()))
+            _unitOfWork.Repository<Author>().Delete(author);
+            if (!(await _unitOfWork.SaveAsync())) 
                 return BadRequest(new Error("Не удалось удалить автора"));
             return Ok();
         }

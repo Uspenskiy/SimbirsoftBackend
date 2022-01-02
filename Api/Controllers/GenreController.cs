@@ -22,15 +22,15 @@ namespace Api.Controllers
     {
         private readonly ILogger<GenreController> _logger;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<Genre> _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public GenreController(ILogger<GenreController> logger,
             IMapper mapper,
-            IGenericRepository<Genre> repository)
+            IUnitOfWork unitOfWork)
         {
             _logger = logger;
             _mapper = mapper;
-            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Api.Controllers
         [HttpGet]
         public async Task<IEnumerable<GenreToReturnDto>> GetGenres()
         {
-            var ganres = await _repository.ListAllAsync();
+            var ganres = await _unitOfWork.Repository<Genre>().ListAllAsync();
             return _mapper.Map<IEnumerable<Genre>, IEnumerable<GenreToReturnDto>>(ganres);
         }
 
@@ -53,7 +53,7 @@ namespace Api.Controllers
         public async Task<int> GetStatistic(int id)
         {
             var spec = new GenreSpecification(id);
-            var genere = await _repository.GetEntityWithSpec(spec);
+            var genere = await _unitOfWork.Repository<Genre>().GetEntityWithSpec(spec);
             if (genere == null) return 0;
             return genere.Books.Count();
         }
@@ -67,8 +67,8 @@ namespace Api.Controllers
         public async Task<ActionResult<GenreToReturnDto>> AddGenre(String genreName)
         {
             var genere = new Genre { GenreName = genreName };
-            var result = _repository.Add(genere);
-            if (!(await _repository.SaveAsync()))
+            var result = _unitOfWork.Repository<Genre>().Add(genere);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось добавить жанр"));
             return Ok(_mapper.Map<Genre, GenreToReturnDto>(result));
         }

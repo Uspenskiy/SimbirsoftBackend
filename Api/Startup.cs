@@ -36,8 +36,9 @@ namespace Api
             services.AddDbContext<AppDbContext>(options => 
              options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IGenreService, GenreService>();
-            services.AddScoped<IAuthorService, AuthorService>();
+            services.AddScoped<IBookService, BookService>();
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -62,7 +63,7 @@ namespace Api
 
             app.UseRouting();
 
-            if(Configuration.GetSection("BasicAuthorization").Get<bool>())
+            if(Configuration.GetSection("BasicAuthorization").Value.ToLower() == "enabled")
                 app.UseMiddleware<BasicAuthorizationMiddleware>();
 
             app.UseEndpoints(endpoints =>

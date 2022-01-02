@@ -11,11 +11,11 @@ namespace Infrastructure
 {
     public class GenreService : IGenreService
     {
-        private readonly IGenericRepository<Genre> _genreRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GenreService(IGenericRepository<Genre> genreRepository)
+        public GenreService(IUnitOfWork unitOfWork)
         {
-            _genreRepository = genreRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Genre>> GetGenres(IEnumerable<string> names)
@@ -30,12 +30,19 @@ namespace Infrastructure
         public async Task<Genre> GetGenre(string name)
         {
             var genreSpec = new GenreSpecification(name);
-            var genre = await _genreRepository.GetEntityWithSpec(genreSpec);
+            var genre = await _unitOfWork.Repository<Genre>().GetEntityWithSpec(genreSpec);
             if (genre != null)
                 return genre;
-            _genreRepository.Add(new Genre { GenreName = name });
-            await _genreRepository.SaveAsync();
+            _unitOfWork.Repository<Genre>().Add(new Genre { GenreName = name });
+            await _unitOfWork.SaveAsync();
             return await GetGenre(name);
+        }
+        public async Task<IEnumerable<Genre>> GetGenres(IEnumerable<Genre> genres)
+        {
+            var result = new List<Genre>();
+            foreach (var genre in genres)
+                result.Add(await GetGenre(genre.GenreName));
+            return result;
         }
 
         public async Task<IEnumerable<Genre>> UpdateGenres(List<Genre> genres, IEnumerable<string> updateGenres)

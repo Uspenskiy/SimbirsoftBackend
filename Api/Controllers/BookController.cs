@@ -25,20 +25,17 @@ namespace Api.Controllers
     {
         private readonly ILogger<BookController> _logger;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<Book> _bookRepository;
-        private readonly IAuthorService _authorService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IGenreService _genreService;
 
         public BookController(ILogger<BookController> logger,
             IMapper mapper,
-            IGenericRepository<Book> bookRepository,
-            IAuthorService authorService,
+            IUnitOfWork unitOfWork,
             IGenreService genreService)
         {
             _logger = logger;
             _mapper = mapper;
-            _bookRepository = bookRepository;
-            _authorService = authorService;
+            _unitOfWork = unitOfWork;
             _genreService = genreService;
         }
 
@@ -54,7 +51,7 @@ namespace Api.Controllers
         public async Task<IEnumerable<BookToReturnDto>> GetBooks([FromQuery] BookSpecParams bookSpecParams)
         {
             var spec = new BookSpecificationAuthorTitleGenre(bookSpecParams);
-            var books = await _bookRepository.ListAsync(spec);
+            var books = await _unitOfWork.Repository<Book>().ListAsync(spec);
             return _mapper.Map<IEnumerable<Book>, IEnumerable<BookToReturnDto>>(books);
         }
 
@@ -67,7 +64,7 @@ namespace Api.Controllers
         public async Task<ActionResult<IEnumerable<BookToReturnDto>>> GetBooksByAuthorId(int AuthorId)
         {
             var spec = new BookSpecificationAuthorId(AuthorId);
-            var books = await _bookRepository.ListAsync(spec);
+            var books = await _unitOfWork.Repository<Book>().ListAsync(spec);
             return Ok(_mapper.Map<IEnumerable<Book>, IEnumerable<BookToReturnDto>>(books));
         }
 
@@ -80,8 +77,9 @@ namespace Api.Controllers
         public async Task<ActionResult<BookToReturnDto>> CreateBook(BookToAddDto dto)
         {
             var book = _mapper.Map<BookToAddDto, Book>(dto);
-            var result = _bookRepository.Add(book);
-            if (!(await _bookRepository.SaveAsync()))
+            book.Genres = (await _genreService.GetGenres(book.Genres)).ToList();
+            var result = _unitOfWork.Repository<Book>().Add(book);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось создать книгу"));
             return Ok(_mapper.Map<Book, BookToReturnDto>(result));
         }
@@ -99,10 +97,10 @@ namespace Api.Controllers
         public async Task<ActionResult<BookToReturnDto>> UpdateGenre(BookToUpdateDto dto)
         {
             var spec = new BookSpecification(dto.Id);
-            var book = await _bookRepository.GetEntityWithSpec(spec);
+            var book = await _unitOfWork.Repository<Book>().GetEntityWithSpec(spec);
             book.Genres = (await _genreService.UpdateGenres(book.Genres, dto.Genres.Select(s => s.GenreName))).ToList();
-            var result = _bookRepository.Update(book);
-            if (!(await _bookRepository.SaveAsync()))
+            var result = _unitOfWork.Repository<Book>().Update(book);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось обновить жанры у книги"));
             return Ok(_mapper.Map<Book, BookToReturnDto>(result));
         }
@@ -116,11 +114,11 @@ namespace Api.Controllers
         public async Task<ActionResult> DeleteBook(int id)
         {
             var spec = new BookSpecification(id);
-            var book = await _bookRepository.GetEntityWithSpec(spec);
+            var book = await _unitOfWork.Repository<Book>().GetEntityWithSpec(spec);
             if (book == null) return BadRequest(new Error("Не удалось удалить книгу"));
             if (book.People.Count != 0) return BadRequest(new Error("Книга у пользователя"));
-            _bookRepository.Delete(book);
-            if (!(await _bookRepository.SaveAsync()))
+            _unitOfWork.Repository<Book>().Delete(book);
+            if (!(await _unitOfWork.SaveAsync()))
                 return BadRequest(new Error("Не удалось удалить книгу"));
             return Ok();
         }

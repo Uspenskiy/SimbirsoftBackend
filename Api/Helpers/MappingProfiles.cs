@@ -17,15 +17,13 @@ namespace Api.Helpers
         {
             CreateMap<Author, AuthorToReturnDto>();
 
-            CreateMap<AuthorToAddWithBookDto, Author>()
-                .ForMember(d => d.Books, o => o.MapFrom<BookNameResolver>());
+            CreateMap<AuthorToAddWithBookDto, Author>();
 
             CreateMap<Author, AuthorToReturnWithBookDto>();
 
             CreateMap<Book, BookToReturnDto>();
 
-            CreateMap<BookToAddDto, Book>()
-                .ForMember(d => d.Genres, o => o.MapFrom<GenreNameResolver>());
+            CreateMap<BookToAddDto, Book>();
 
             CreateMap<Genre, GenreToReturnDto>();
             CreateMap<GenreToAddDto, Genre>();

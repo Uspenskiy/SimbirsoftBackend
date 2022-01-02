@@ -15,13 +15,17 @@ namespace Infrastructure.Data
     /// 2.6 - Реализовать репозитории под все сущности кроме референсных (ManyToMany)
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseTimeEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         private readonly AppDbContext _context;
 
         public GenericRepository(AppDbContext context)
         {
             _context = context;
+        }
+
+        public GenericRepository()
+        {
         }
 
         public async Task<T> GetByIdAsync(int id)
@@ -65,12 +69,6 @@ namespace Infrastructure.Data
         public void Delete(T entity)
         {
             _context.Set<T>().Remove(entity);
-        }
-
-        public async Task<bool> SaveAsync()
-        {
-            var result = await _context.SaveChangesAsync();
-            return result > 0;
         }
 
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
